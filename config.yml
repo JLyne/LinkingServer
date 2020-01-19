@@ -1,0 +1,62 @@
+- name: Test
+  contributors:
+    - NotKatuen
+  environment:
+    time: 18000
+  folder: test
+  viewpoints:
+    - 2.441,65,1.388,-139.4,-10.2
+    - 13.300,69.839,-7.700,-13.7,16.6
+    - 4.579,66,-7.421,-128.1,1.8
+    - 2.391,66,-13.433,-93.9,17.2
+    - 2.455,72,-13.495,-92.3,11
+
+- name: Street corner
+  contributors:
+    - Happy_men
+  environment:
+    time: 12000
+    cycle: true
+  folder: entry1
+  viewpoints:
+    - 2.441,65,1.388,-139.4,-10.2
+    - 13.300,69.839,-7.700,-13.7,16.6
+    - 4.579,66,-7.421,-128.1,1.8
+    - 2.391,66,-13.433,-93.9,17.2
+    - 2.455,72,-13.495,-92.3,11
+
+- name: Old Wheat Mill
+  contributors:
+    - CallMeKevinG
+  environment:
+    time: 6000
+  folder: entry2
+  viewpoints:
+    - 1.478,65,-3.516,-127.7,-15.9
+    - 15.592,63.937,-0.291,142.4,-20.1
+    - 4.3,65,-10.3,-114.6,-12
+    - 11.512,65,-9.925,115.5,1.3
+
+- name: Cave-in
+  contributors:
+    - YourLocalPiebro
+  environment:
+    time: 12000
+  folder: entry3
+  viewpoints:
+    - 22.787,66.114,-9.927,87.7,-11.6
+    - 7.3,64,-6.3,-149.1,2.7
+
+- name: The Middle
+  contributors:
+    - berfv
+  environment:
+    time: 12000
+    weather: rain
+  folder: entry4
+  viewpoints:
+    - 21.836,65.774,0.229,117.4,-6.3
+    - -2.372,74.387,-12.131,-71.4,31.6
+    - 0.564,64,0.203,-134.7,-28.7
+
+
