@@ -1,6 +1,7 @@
 """
 Empty server that send the _bare_ minimum data to keep a minecraft client connected
 """
+import logging
 import random
 from argparse import ArgumentParser
 
@@ -162,7 +163,13 @@ class StoneWallProtocol(ServerProtocol):
             self.next_chunk()
 
     def next_chunk(self):
-        self.current_chunk = random.choice(chunks)
+        if len(chunks) == 1:
+            return
+
+        current_chunk = self.current_chunk
+
+        while current_chunk == self.current_chunk:
+            self.current_chunk = random.choice(chunks)
 
         self.player_spawned = False
         self.viewpoint_spawned = False
@@ -190,6 +197,10 @@ if __name__ == "__main__":
     server_factory.online_mode = False
 
     chunks = config.load_chunk_config()
+
+    if len(chunks) is 0:
+        logging.getLogger('main').error("No chunks defined. Exiting.")
+        exit(1)
 
     server_factory.listen(args.host, args.port)
     reactor.run()
