@@ -163,9 +163,11 @@ class StoneWallProtocol(ServerProtocol):
 
     def next_chunk(self):
         self.current_chunk = random.choice(chunks)
+
         self.player_spawned = False
         self.viewpoint_spawned = False
         self.viewpoint_used = False
+        self.raining = False
 
         self.send_packet("respawn", self.buff_type.pack("iBq", 1, 3, 0), self.buff_type.pack_string("flat"))
         self.send_packet("respawn", self.buff_type.pack("iBq", 0, 3, 0), self.buff_type.pack_string("flat"))
