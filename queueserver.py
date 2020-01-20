@@ -23,7 +23,9 @@ class StoneWallProtocol(ServerProtocol):
 
         self.current_chunk = None
         self.current_viewpoint = None
+        self.raining = False
 
+        self.player_spawned = False
         self.viewpoint_spawned = False
         self.viewpoint_used = False
 
@@ -35,13 +37,9 @@ class StoneWallProtocol(ServerProtocol):
         # Sent init packets
         self.send_packet("join_game",
                          self.buff_type.pack("iBqiB", 0, 3, 0, 0, 0),
-                         self.buff_type.pack_string("default"),
+                         self.buff_type.pack_string("flat"),
                          self.buff_type.pack_varint(6),
                          self.buff_type.pack("??", False, True))
-
-        self.send_packet("player_position_and_look",
-                         self.buff_type.pack("dddff?", -16, 65, 16, 0, 0, 0b00000),
-                         self.buff_type.pack_varint(0))
 
         self.ticker.add_loop(20, self.send_keep_alive)  # Keep alive packets
 
@@ -54,45 +52,68 @@ class StoneWallProtocol(ServerProtocol):
         self.next_viewpoint()
 
     def send_chunk(self):
+        self.current_viewpoint = 0
+        self.send_viewpoint()
+
+        # Chunk packets
         for packet in  self.current_chunk.packets:
             self.send_packet(packet.get('type'), packet.get('packet'))
 
-        if  self.current_chunk.weather is 'rain':
-            self.send_packet('change_game_state', self.buff_type.pack("B", 1))
 
-        self.current_viewpoint = 0
+        # Start/stop rain as necessary
+        if self.current_chunk.weather == 'rain':
+            if self.raining is False:
+                self.send_packet('change_game_state', self.buff_type.pack("Bf", 2, 0))
+                self.raining = True
+        elif self.raining is True:
+            self.send_packet('change_game_state', self.buff_type.pack("Bf", 1, 0))
+            self.raining = False
 
+        # Time of day
         self.send_packet('time_update',
                          self.buff_type.pack("Qq", 0,
+                                             # Cycle
                                              self.current_chunk.time  if self.current_chunk.cycle is True
                                              else (0 - self.current_chunk.time)))
 
+        # Credits
         self.send_packet('chat_message',
                          self.buff_type.pack_string( self.current_chunk.credit_json()),
                          self.buff_type.pack("b", 1))
-
-        self.send_viewpoint()
 
     def send_viewpoint(self):
         viewpoint =  self.current_chunk.viewpoints[self.current_viewpoint]
         x = viewpoint.get('x')
         z = viewpoint.get('z')
+        outside_chunk = x >= 16 or x < 0 or z > 0 or z <= -16
 
-        # Viewpoint is outside chunk, unspectate viewpoint entity and move player
-        # Avoids player view messing up due to unloaded chunks I guess
-        if x >= 16 or x < 0 or z > 0 or z <= -16:
+        # Player hasn't spawned yet and viewpoint is inside chunk
+        # Spawn them outside to prevent movement
+        if self.player_spawned is False and outside_chunk is False:
+                self.send_packet("player_position_and_look",
+                             self.buff_type.pack("dddff?", 16.0, 65, -16, 0.0, 0.0, 0b00000),
+                                    self.buff_type.pack_varint(0))
+
+                self.player_spawned = True
+
+        # Viewpoint is outside chunk, unspectate viewpoint entity and teleport player
+        # This also spawns the player if they aren't already
+        if outside_chunk is True:
             if self.viewpoint_used is True:
                 self.send_packet('camera', self.buff_type.pack_varint(0))
                 self.viewpoint_used = False
 
             self.send_packet("player_position_and_look",
                              self.buff_type.pack("dddff?", x,
-                                    viewpoint.get('y'),
-                                    z,
-                                    viewpoint.get('yaw'),
-                                    viewpoint.get('pitch'),
+                                                 viewpoint.get('y'),
+                                                 z,
+                                                 viewpoint.get('yaw'),
+                                                 viewpoint.get('pitch'),
                                                  0b00000),
-                                    self.buff_type.pack_varint(0))
+                             self.buff_type.pack_varint(0))
+
+            self.player_spawned = True
+
         # Viewpoint is inside chunk, teleport and spectate viewpoint entity
         else:
             if self.viewpoint_spawned is False:
@@ -121,7 +142,9 @@ class StoneWallProtocol(ServerProtocol):
                                         0))
 
                 #self.send_packet('entity_look', self.buff_type.pack_varint(self.viewpoint_id), self.buff_type.pack("bbB", viewpoint.get('yaw_256'), viewpoint.get('pitch'), 0))
-                self.send_packet('entity_head_look', self.buff_type.pack_varint(self.viewpoint_id), self.buff_type.pack("b", viewpoint.get('yaw_256')))
+                self.send_packet('entity_head_look',
+                                 self.buff_type.pack_varint(self.viewpoint_id),
+                                 self.buff_type.pack("b", viewpoint.get('yaw_256')))
 
             if self.viewpoint_used is False:
                 self.send_packet('camera', self.buff_type.pack_varint(self.viewpoint_id))
@@ -134,11 +157,19 @@ class StoneWallProtocol(ServerProtocol):
             return
         elif self.current_viewpoint < count - 1:
             self.current_viewpoint += 1
+            self.send_viewpoint()
         else:
-            self.current_viewpoint = 0
+            self.next_chunk()
 
-        self.send_viewpoint()
+    def next_chunk(self):
+        self.current_chunk = random.choice(chunks)
+        self.player_spawned = False
+        self.viewpoint_spawned = False
+        self.viewpoint_used = False
 
+        self.send_packet("respawn", self.buff_type.pack("iBq", 1, 3, 0), self.buff_type.pack_string("flat"))
+        self.send_packet("respawn", self.buff_type.pack("iBq", 0, 3, 0), self.buff_type.pack_string("flat"))
+        self.send_chunk()
     def send_keep_alive(self):
         self.send_packet("keep_alive", self.buff_type.pack("Q", 0))
 
