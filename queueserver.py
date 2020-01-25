@@ -204,3 +204,5 @@ if __name__ == "__main__":
 
     server_factory.listen(args.host, args.port)
     reactor.run()
+
+    logging.getLogger('main').info("Server started")
