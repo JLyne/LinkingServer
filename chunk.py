@@ -68,6 +68,7 @@ class Chunk:
         return json.dumps({
             "text": "\"" + self.name + "\"\n",
             "italic": True,
+            "color": "green",
             "extra": [
                 {
                     "text": "Created by ",
@@ -75,11 +76,13 @@ class Chunk:
                 },
                 {
                     "text": ", ".join(self.contributors[0:-2]),
-                    "italic": False
+                    "italic": False,
+                    "color": "yellow"
                 },
                 {
                     "text": self.contributors[-1] if len(self.contributors) is 1 else "and " + self.contributors[-1],
-                    "italic": False
+                    "italic": False,
+                    "color": "yellow"
                 }
             ]
         })
