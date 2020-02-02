@@ -3,6 +3,7 @@ Empty server that send the _bare_ minimum data to keep a minecraft client connec
 """
 import logging
 import random
+import time
 from argparse import ArgumentParser
 
 from quarry.types.buffer import Buffer
@@ -33,6 +34,8 @@ class StoneWallProtocol(ServerProtocol):
         self.viewpoint_spawned = False
         self.viewpoint_used = False
 
+        self.last_click = time.time()
+
         super(StoneWallProtocol, self).__init__(factory, remote_addr)
 
     def player_joined(self):
@@ -51,11 +54,22 @@ class StoneWallProtocol(ServerProtocol):
 
         self.send_chunk()
 
+    # Cycle through viewpoints when player clicks
     def packet_animation(self, buff):
         buff.unpack_varint()
-        self.next_viewpoint()
 
+        now = time.time()
+
+        # Prevent spam
+        if now - self.last_click > 0.5:
+            self.last_click = now
+            self.next_viewpoint()
+
+    # Handle /next and /orev commands in voting mode
     def packet_chat_message(self, buff):
+        if voting_mode is False:
+            return
+
         message = buff.unpack_string()
 
         if message == "/prev":
