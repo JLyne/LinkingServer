@@ -15,7 +15,10 @@ from quarry.net.server import ServerFactory, ServerProtocol
 
 from quarry.types.uuid import UUID
 
+from voting import entry_json, entry_navigation_json
+
 chunks = list()
+voting_mode = False
 
 class StoneWallProtocol(ServerProtocol):
     def __init__(self, factory, remote_addr):
@@ -52,6 +55,14 @@ class StoneWallProtocol(ServerProtocol):
         buff.unpack_varint()
         self.next_viewpoint()
 
+    def packet_chat_message(self, buff):
+        message = buff.unpack_string()
+
+        if message == "/prev":
+            self.previous_chunk()
+        elif message == "/next":
+            self.next_chunk()
+
     def send_chunk(self):
         self.current_viewpoint = 0
         self.send_viewpoint()
@@ -77,9 +88,19 @@ class StoneWallProtocol(ServerProtocol):
                                              self.current_chunk.time  if self.current_chunk.cycle is True
                                              else (0 - self.current_chunk.time)))
 
+        if voting_mode:
+            self.send_packet('chat_message',
+                         self.buff_type.pack_string(entry_json(chunks.index(self.current_chunk) + 1, len(chunks))),
+                         self.buff_type.pack("b", 1))
+
         # Credits
         self.send_packet('chat_message',
                          self.buff_type.pack_string( self.current_chunk.credit_json()),
+                         self.buff_type.pack("b", 1))
+
+        if voting_mode:
+            self.send_packet('chat_message',
+                         self.buff_type.pack_string(entry_navigation_json()),
                          self.buff_type.pack("b", 1))
 
     def send_viewpoint(self):
@@ -92,7 +113,7 @@ class StoneWallProtocol(ServerProtocol):
         # Spawn them outside to prevent movement
         if self.player_spawned is False and outside_chunk is False:
                 self.send_packet("player_position_and_look",
-                             self.buff_type.pack("dddff?", 16.0, 65, -16, 0.0, 0.0, 0b00000),
+                             self.buff_type.pack("dddff?", 18.0, 128, -18, 0.0, 0.0, 0b00000),
                                     self.buff_type.pack_varint(0))
 
                 self.player_spawned = True
@@ -159,18 +180,12 @@ class StoneWallProtocol(ServerProtocol):
         elif self.current_viewpoint < count - 1:
             self.current_viewpoint += 1
             self.send_viewpoint()
-        else:
+        elif voting_mode:
             self.next_chunk()
+        else:
+            self.random_chunk()
 
-    def next_chunk(self):
-        if len(chunks) == 1:
-            return
-
-        current_chunk = self.current_chunk
-
-        while current_chunk == self.current_chunk:
-            self.current_chunk = random.choice(chunks)
-
+    def reset_chunk(self):
         self.player_spawned = False
         self.viewpoint_spawned = False
         self.viewpoint_used = False
@@ -179,6 +194,35 @@ class StoneWallProtocol(ServerProtocol):
         self.send_packet("respawn", self.buff_type.pack("iBq", 1, 3, 0), self.buff_type.pack_string("flat"))
         self.send_packet("respawn", self.buff_type.pack("iBq", 0, 3, 0), self.buff_type.pack_string("flat"))
         self.send_chunk()
+
+    def next_chunk(self):
+        if len(chunks) > 1:
+            index = chunks.index(self.current_chunk)
+            next_index = index + 1 if index < len(chunks) - 1 else 0
+            self.current_chunk = chunks[next_index]
+
+        self.reset_chunk()
+        self.send_chunk()
+
+    def previous_chunk(self):
+        if len(chunks) > 1:
+            index = chunks.index(self.current_chunk)
+            prev_index = index - 1 if index > 0 else len(chunks) - 1
+            self.current_chunk = chunks[prev_index]
+
+        self.reset_chunk()
+        self.send_chunk()
+
+    def random_chunk(self):
+        if len(chunks) > 1:
+            current_chunk = self.current_chunk
+
+            while current_chunk == self.current_chunk:
+                self.current_chunk = random.choice(chunks)
+
+        self.reset_chunk()
+        self.send_chunk()
+
     def send_keep_alive(self):
         self.send_packet("keep_alive", self.buff_type.pack("Q", 0))
 
@@ -188,6 +232,8 @@ if __name__ == "__main__":
     parser.add_argument("-a", "--host", default="127.0.0.1", help="bind address")
     parser.add_argument("-p", "--port", default=25567, type=int, help="bind port")
     parser.add_argument("-m", "--max", default=65535, type=int, help="player count")
+    parser.add_argument("-v", "--voting", action='store_true',
+                        help="puts server in 'voting' mode - shows entry counts and prev/next buttons")
     args = parser.parse_args()
 
     server_factory = ServerFactory()
@@ -195,6 +241,9 @@ if __name__ == "__main__":
     server_factory.max_players = args.max
     server_factory.motd = "Queue Server"
     server_factory.online_mode = False
+    server_factory.compression_threshold = 5646848
+
+    voting_mode = args.voting
 
     chunks = config.load_chunk_config()
 
