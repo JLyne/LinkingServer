@@ -5,6 +5,7 @@ import logging
 import random
 import time
 from argparse import ArgumentParser
+from copy import deepcopy
 
 from quarry.types.buffer import Buffer
 
@@ -36,9 +37,37 @@ class StoneWallProtocol(ServerProtocol):
 
         self.last_click = time.time()
 
+        self.forwarded_uuid = None
+        self.forwarded_host = None
+
         super(StoneWallProtocol, self).__init__(factory, remote_addr)
 
+    def packet_handshake(self, buff):
+        buff2 = deepcopy(buff)
+        super().packet_handshake(buff)
+
+        buff2.unpack_varint()
+        p_connect_host = buff2.unpack_string()
+
+        # Bungeecord ip forwarding, ip/uuid is included in host string separated by \00s
+        split_host = str.split(p_connect_host, "\00")
+
+        if len(split_host) >= 3:
+            host = split_host[1]
+            online_uuid = split_host[2]
+
+            self.forwarded_host = host
+            self.forwarded_uuid = UUID.from_hex(online_uuid)
+
     def player_joined(self):
+        # Overwrite with forwarded information if present
+        if self.forwarded_uuid is not None:
+            self.uuid = self.forwarded_uuid
+            self.display_name_confirmed = True
+
+        if self.forwarded_host is not None:
+            self.connect_host = self.forwarded_host
+
         super().player_joined()
 
         # Sent init packets
