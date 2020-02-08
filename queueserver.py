@@ -121,70 +121,49 @@ class StoneWallProtocol(ServerProtocol):
         viewpoint =  self.current_chunk.viewpoints[self.current_viewpoint]
         x = viewpoint.get('x')
         z = viewpoint.get('z')
-        outside_chunk = x >= 16 or x < 0 or z > 0 or z <= -16
 
-        # Player hasn't spawned yet and viewpoint is inside chunk
-        # Spawn them outside to prevent movement
-        if self.player_spawned is False and outside_chunk is False:
+        # Player hasn't spawned yet
+        # Spawn them outside chunk to prevent movement
+        if self.player_spawned is False:
                 self.send_packet("player_position_and_look",
-                             self.buff_type.pack("dddff?", 18.0, 128, -18, 0.0, 0.0, 0b00000),
+                             self.buff_type.pack("dddff?", 128.0, 128, -128, 0.0, 0.0, 0b00000),
                                     self.buff_type.pack_varint(0))
 
                 self.player_spawned = True
 
-        # Viewpoint is outside chunk, unspectate viewpoint entity and teleport player
-        # This also spawns the player if they aren't already
-        if outside_chunk is True:
-            if self.viewpoint_used is True:
-                self.send_packet('camera', self.buff_type.pack_varint(0))
-                self.viewpoint_used = False
+        # Teleport and spectate viewpoint entity
+        if self.viewpoint_spawned is False:
+            self.send_packet(
+                'spawn_mob',
+                self.buff_type.pack_varint(self.viewpoint_id),
+                self.buff_type.pack_uuid(self.uuid),
+                self.buff_type.pack_varint(62),
+                self.buff_type.pack("dddbbbhhh",
+                                    x,
+                                    viewpoint.get('y'),
+                                    z,
+                                    viewpoint.get('yaw_256'),
+                                    viewpoint.get('pitch'),
+                                    viewpoint.get('yaw_256'), 0, 0, 0))
 
-            self.send_packet("player_position_and_look",
-                             self.buff_type.pack("dddff?", x,
-                                                 viewpoint.get('y'),
-                                                 z,
-                                                 viewpoint.get('yaw'),
-                                                 viewpoint.get('pitch'),
-                                                 0b00000),
-                             self.buff_type.pack_varint(0))
+            self.viewpoint_spawned = True
+        else :
+            self.send_packet('entity_teleport', self.buff_type.pack_varint(self.viewpoint_id),
+                             self.buff_type.pack("dddbbb",
+                                    x,
+                                    viewpoint.get('y'),
+                                    z,
+                                    viewpoint.get('yaw_256'),
+                                    viewpoint.get('pitch'),
+                                    0))
 
-            self.player_spawned = True
+            self.send_packet('entity_head_look',
+                             self.buff_type.pack_varint(self.viewpoint_id),
+                             self.buff_type.pack("b", viewpoint.get('yaw_256')))
 
-        # Viewpoint is inside chunk, teleport and spectate viewpoint entity
-        else:
-            if self.viewpoint_spawned is False:
-                self.send_packet(
-                    'spawn_mob',
-                    self.buff_type.pack_varint(self.viewpoint_id),
-                    self.buff_type.pack_uuid(self.uuid),
-                    self.buff_type.pack_varint(62),
-                    self.buff_type.pack("dddbbbhhh",
-                                        x,
-                                        viewpoint.get('y'),
-                                        z,
-                                        viewpoint.get('yaw_256'),
-                                        viewpoint.get('pitch'),
-                                        viewpoint.get('yaw_256'), 0, 0, 0))
-
-                self.viewpoint_spawned = True
-            else :
-                self.send_packet('entity_teleport', self.buff_type.pack_varint(self.viewpoint_id),
-                                 self.buff_type.pack("dddbbb",
-                                        x,
-                                        viewpoint.get('y'),
-                                        z,
-                                        viewpoint.get('yaw_256'),
-                                        viewpoint.get('pitch'),
-                                        0))
-
-                #self.send_packet('entity_look', self.buff_type.pack_varint(self.viewpoint_id), self.buff_type.pack("bbB", viewpoint.get('yaw_256'), viewpoint.get('pitch'), 0))
-                self.send_packet('entity_head_look',
-                                 self.buff_type.pack_varint(self.viewpoint_id),
-                                 self.buff_type.pack("b", viewpoint.get('yaw_256')))
-
-            if self.viewpoint_used is False:
-                self.send_packet('camera', self.buff_type.pack_varint(self.viewpoint_id))
-                self.viewpoint_used = True
+        if self.viewpoint_used is False:
+            self.send_packet('camera', self.buff_type.pack_varint(self.viewpoint_id))
+            self.viewpoint_used = True
 
     def next_viewpoint(self):
         count = len(self.current_chunk.viewpoints)
