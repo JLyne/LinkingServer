@@ -50,7 +50,10 @@ class StoneWallProtocol(ServerProtocol):
 
         self.ticker.add_loop(20, self.send_keep_alive)  # Keep alive packets
 
-        self.current_chunk = random.choice(chunks)
+        if voting_mode:
+            self.current_chunk = chunks[0]
+        else:
+            self.current_chunk = random.choice(chunks)
 
         self.send_chunk()
 
