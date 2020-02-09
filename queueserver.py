@@ -206,7 +206,8 @@ class StoneWallProtocol(ServerProtocol):
             self.current_viewpoint += 1
             self.send_viewpoint()
         elif voting_mode:
-            self.next_chunk()
+            self.current_viewpoint = 0
+            self.send_viewpoint()
         else:
             self.random_chunk()
 
