@@ -1,4 +1,8 @@
 import json
+import hmac
+
+from quarry.types.uuid import UUID
+
 
 def entry_json(current, total):
     return json.dumps({
@@ -17,8 +21,12 @@ def entry_json(current, total):
             ]
         })
 
-def entry_navigation_json():
-     return json.dumps({
+def entry_navigation_json(uuid: UUID, secret):
+    token = hmac.new(key=str.encode(secret), msg=uuid.to_bytes(), digestmod="sha256")
+    url ='https://minecraft.rtgame.co.uk/detailing/?uuid={}&token={}'.format(uuid.to_hex(False), token.hexdigest())
+    print(url)
+
+    return json.dumps({
             "text": "\n",
             "color": "gold",
             "extra": [
@@ -39,6 +47,18 @@ def entry_navigation_json():
                     "clickEvent": {
                         "action": "run_command",
                         "value": "/next"
+                    }
+                },
+                {
+                    "text": "\n\n"
+                },
+                {
+                    "text": "[Cast your Votes]",
+                    "bold": True,
+                    "color": "aqua",
+                    "clickEvent": {
+                        "action": "open_url",
+                        "value": url
                     }
                 },
                 {

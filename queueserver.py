@@ -146,7 +146,7 @@ class StoneWallProtocol(ServerProtocol):
 
         if voting_mode:
             self.send_packet('chat_message',
-                         self.buff_type.pack_string(entry_navigation_json()),
+                         self.buff_type.pack_string(entry_navigation_json(self.uuid, voting_secret)),
                          self.buff_type.pack("b", 1))
 
     def send_viewpoint(self):
@@ -259,6 +259,9 @@ if __name__ == "__main__":
     parser.add_argument("-m", "--max", default=65535, type=int, help="player count")
     parser.add_argument("-v", "--voting", action='store_true',
                         help="puts server in 'voting' mode - shows entry counts and prev/next buttons")
+    parser.add_argument("-s", "--secret", type=str,
+                        help="Shared secret for voting url HMAC")
+
     args = parser.parse_args()
 
     server_factory = ServerFactory()
@@ -269,8 +272,13 @@ if __name__ == "__main__":
     server_factory.compression_threshold = 5646848
 
     voting_mode = args.voting
+    voting_secret = args.secret
 
     chunks = config.load_chunk_config()
+
+    if voting_mode is True and voting_secret is None:
+        logging.getLogger('main').error("You must provide a secret (-s) to use voting mode. Exiting.")
+        exit(1)
 
     if len(chunks) is 0:
         logging.getLogger('main').error("No chunks defined. Exiting.")
