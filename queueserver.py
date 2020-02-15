@@ -286,6 +286,7 @@ if __name__ == "__main__":
         exit(1)
 
     server_factory.listen(args.host, args.port)
+    print('Server started')
+    print("Listening on {}:{}".format(args.host, args.port))
     reactor.run()
 
-    logging.getLogger('main').info("Server started")
