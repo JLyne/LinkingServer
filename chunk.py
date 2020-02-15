@@ -22,7 +22,7 @@ class Chunk:
 
         path = os.path.join(os.getcwd(), 'packets', folder, '*.bin')
 
-        for filename in glob.glob(path):
+        for filename in sorted(glob.glob(path)):
             file = open(filename, 'rb')
             packet_type = re.match(r'(\d+)_dn_(\w+)\.bin', os.path.basename(filename))
 
