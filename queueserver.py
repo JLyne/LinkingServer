@@ -77,7 +77,7 @@ class StoneWallProtocol(ServerProtocol):
                          self.buff_type.pack_varint(6),
                          self.buff_type.pack("??", False, True))
 
-        self.ticker.add_loop(20, self.send_keep_alive)  # Keep alive packets
+        self.ticker.add_loop(100, self.send_keep_alive)  # Keep alive packets
 
         if voting_mode:
             self.current_chunk = chunks[0]
