@@ -99,10 +99,10 @@ class StoneWallProtocol(ServerProtocol):
 
     # Handle /next and /orev commands in voting mode
     def packet_chat_message(self, buff):
+        message = buff.unpack_string()
+
         if voting_mode is False:
             return
-
-        message = buff.unpack_string()
 
         if message == "/prev":
             self.previous_chunk()
