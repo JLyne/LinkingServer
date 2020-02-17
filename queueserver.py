@@ -46,8 +46,11 @@ class StoneWallProtocol(ServerProtocol):
         buff2 = deepcopy(buff)
         super().packet_handshake(buff)
 
-        buff2.unpack_varint()
+        p_protocol_version = buff2.unpack_varint()
         p_connect_host = buff2.unpack_string()
+
+        if p_protocol_version != 578:
+            self.close("Please use 1.15.2")
 
         # Bungeecord ip forwarding, ip/uuid is included in host string separated by \00s
         split_host = str.split(p_connect_host, "\00")
