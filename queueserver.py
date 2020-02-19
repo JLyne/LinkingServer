@@ -7,16 +7,14 @@ import time
 from argparse import ArgumentParser
 from copy import deepcopy
 
-from quarry.types.buffer import Buffer
-
 import config
-from chunk import Chunk
 
 from twisted.internet import reactor
 from quarry.net.server import ServerFactory, ServerProtocol
 
 from quarry.types.uuid import UUID
 
+from prometheus import set_players_online, init_prometheus
 from voting import entry_json, entry_navigation_json
 
 chunks = list()
@@ -73,6 +71,8 @@ class StoneWallProtocol(ServerProtocol):
 
         super().player_joined()
 
+        set_players_online(len(self.factory.players))
+
         # Sent init packets
         self.send_packet("join_game",
                          self.buff_type.pack("iBqiB", 0, 3, 0, 0, 0),
@@ -88,6 +88,11 @@ class StoneWallProtocol(ServerProtocol):
             self.current_chunk = random.choice(chunks)
 
         self.send_chunk()
+
+    def player_left(self):
+        super().player_left()
+
+        set_players_online(len(self.factory.players))
 
     # Cycle through viewpoints when player clicks
     def packet_animation(self, buff):
@@ -261,6 +266,7 @@ if __name__ == "__main__":
     parser.add_argument("-a", "--host", default="127.0.0.1", help="bind address")
     parser.add_argument("-p", "--port", default=25567, type=int, help="bind port")
     parser.add_argument("-m", "--max", default=65535, type=int, help="player count")
+    parser.add_argument("-r", "--metrics", default=None, type=int, help="expose prometheus metrics on specified port")
     parser.add_argument("-v", "--voting", action='store_true',
                         help="puts server in 'voting' mode - shows entry counts and prev/next buttons")
     parser.add_argument("-s", "--secret", type=str,
@@ -275,6 +281,8 @@ if __name__ == "__main__":
     server_factory.online_mode = False
     server_factory.compression_threshold = 5646848
 
+    metrics_port = args.metrics
+
     voting_mode = args.voting
     voting_secret = args.secret
 
@@ -287,6 +295,9 @@ if __name__ == "__main__":
     if len(chunks) is 0:
         logging.getLogger('main').error("No chunks defined. Exiting.")
         exit(1)
+
+    if metrics_port is not None:
+        init_prometheus(metrics_port)
 
     server_factory.listen(args.host, args.port)
     print('Server started')
