@@ -4,6 +4,7 @@ Empty server that send the _bare_ minimum data to keep a minecraft client connec
 import logging
 import random
 import time
+import json
 from argparse import ArgumentParser
 from copy import deepcopy
 
@@ -15,10 +16,8 @@ from quarry.net.server import ServerFactory, ServerProtocol
 from quarry.types.uuid import UUID
 
 from prometheus import set_players_online, init_prometheus
-from voting import entry_json, entry_navigation_json
 
 chunks = list()
-voting_mode = False
 
 class StoneWallProtocol(ServerProtocol):
     def __init__(self, factory, remote_addr):
@@ -26,14 +25,11 @@ class StoneWallProtocol(ServerProtocol):
         self.viewpoint_id = 999
 
         self.current_chunk = None
-        self.current_viewpoint = None
         self.raining = False
 
         self.player_spawned = False
         self.viewpoint_spawned = False
         self.viewpoint_used = False
-
-        self.last_click = time.time()
 
         self.forwarded_uuid = None
         self.forwarded_host = None
@@ -81,41 +77,17 @@ class StoneWallProtocol(ServerProtocol):
                          self.buff_type.pack("??", False, True))
 
         self.ticker.add_loop(100, self.send_keep_alive)  # Keep alive packets
-
-        if voting_mode:
-            self.current_chunk = chunks[0]
-        else:
-            self.current_chunk = random.choice(chunks)
+        self.current_chunk = random.choice(chunks)
 
         self.send_chunk()
+        self.send_commands()
+
+        self.ticker.add_delay(10, self.send_tablist)
 
     def player_left(self):
         super().player_left()
 
         set_players_online(len(self.factory.players))
-
-    # Cycle through viewpoints when player clicks
-    def packet_animation(self, buff):
-        buff.unpack_varint()
-
-        now = time.time()
-
-        # Prevent spam
-        if now - self.last_click > 0.5:
-            self.last_click = now
-            self.next_viewpoint()
-
-    # Handle /next and /orev commands in voting mode
-    def packet_chat_message(self, buff):
-        message = buff.unpack_string()
-
-        if voting_mode is False:
-            return
-
-        if message == "/prev":
-            self.previous_chunk()
-        elif message == "/next":
-            self.next_chunk()
 
     def send_chunk(self):
         self.current_viewpoint = 0
@@ -141,21 +113,6 @@ class StoneWallProtocol(ServerProtocol):
                                              # Cycle
                                              self.current_chunk.time  if self.current_chunk.cycle is True
                                              else (0 - self.current_chunk.time)))
-
-        if voting_mode:
-            self.send_packet('chat_message',
-                         self.buff_type.pack_string(entry_json(chunks.index(self.current_chunk) + 1, len(chunks))),
-                         self.buff_type.pack("b", 1))
-
-        # Credits
-        self.send_packet('chat_message',
-                         self.buff_type.pack_string( self.current_chunk.credit_json()),
-                         self.buff_type.pack("b", 1))
-
-        if voting_mode:
-            self.send_packet('chat_message',
-                         self.buff_type.pack_string(entry_navigation_json(self.uuid, voting_secret)),
-                         self.buff_type.pack("b", 1))
 
     def send_viewpoint(self):
         viewpoint =  self.current_chunk.viewpoints[self.current_viewpoint]
@@ -205,57 +162,40 @@ class StoneWallProtocol(ServerProtocol):
             self.send_packet('camera', self.buff_type.pack_varint(self.viewpoint_id))
             self.viewpoint_used = True
 
-    def next_viewpoint(self):
-        count = len(self.current_chunk.viewpoints)
+    def send_tablist(self):
+        self.send_packet("player_list_header_footer",
+                         self.buff_type.pack_string(json.dumps({
+                            "text": 'Gamers Online: ',
+                            "extra": [
+                                {
+                                    "text": "123",
+                                    "obfuscated": True,
+                                    "color": "green"
+                                },
+                            ]
+                        })),
+                         self.buff_type.pack_string(json.dumps({"translate": ""})))
 
-        if count is 0:
-            return
-        elif self.current_viewpoint < count - 1:
-            self.current_viewpoint += 1
-            self.send_viewpoint()
-        elif voting_mode:
-            self.current_viewpoint = 0
-            self.send_viewpoint()
-        else:
-            self.random_chunk()
+    def send_commands(self):
+        commands = {
+            "name": None,
+            "suggestions": None,
+            "type": "root",
+            "executable": True,
+            "redirect": None,
+            "children": {
+                "link": {
+                    "type": "literal",
+                    "name": "link",
+                    "executable": True,
+                    "redirect": None,
+                    "children": dict(),
+                    "suggestions": None
+                },
+            },
+        }
 
-    def reset_chunk(self):
-        self.player_spawned = False
-        self.viewpoint_spawned = False
-        self.viewpoint_used = False
-        self.raining = False
-
-        self.send_packet("respawn", self.buff_type.pack("iBq", 1, 3, 0), self.buff_type.pack_string("flat"))
-        self.send_packet("respawn", self.buff_type.pack("iBq", 0, 3, 0), self.buff_type.pack_string("flat"))
-        self.send_chunk()
-
-    def next_chunk(self):
-        if len(chunks) > 1:
-            index = chunks.index(self.current_chunk)
-            next_index = index + 1 if index < len(chunks) - 1 else 0
-            self.current_chunk = chunks[next_index]
-
-        self.reset_chunk()
-        self.send_chunk()
-
-    def previous_chunk(self):
-        if len(chunks) > 1:
-            index = chunks.index(self.current_chunk)
-            prev_index = index - 1 if index > 0 else len(chunks) - 1
-            self.current_chunk = chunks[prev_index]
-
-        self.reset_chunk()
-        self.send_chunk()
-
-    def random_chunk(self):
-        if len(chunks) > 1:
-            current_chunk = self.current_chunk
-
-            while current_chunk == self.current_chunk:
-                self.current_chunk = random.choice(chunks)
-
-        self.reset_chunk()
-        self.send_chunk()
+        self.send_packet('declare_commands', self.buff_type.pack_commands(commands))
 
     def send_keep_alive(self):
         self.send_packet("keep_alive", self.buff_type.pack("Q", 0))
@@ -267,30 +207,19 @@ if __name__ == "__main__":
     parser.add_argument("-p", "--port", default=25567, type=int, help="bind port")
     parser.add_argument("-m", "--max", default=65535, type=int, help="player count")
     parser.add_argument("-r", "--metrics", default=None, type=int, help="expose prometheus metrics on specified port")
-    parser.add_argument("-v", "--voting", action='store_true',
-                        help="puts server in 'voting' mode - shows entry counts and prev/next buttons")
-    parser.add_argument("-s", "--secret", type=str,
-                        help="Shared secret for voting url HMAC")
 
     args = parser.parse_args()
 
     server_factory = ServerFactory()
     server_factory.protocol = StoneWallProtocol
     server_factory.max_players = args.max
-    server_factory.motd = "Queue Server"
+    server_factory.motd = "Linking Server"
     server_factory.online_mode = False
     server_factory.compression_threshold = 5646848
 
     metrics_port = args.metrics
 
-    voting_mode = args.voting
-    voting_secret = args.secret
-
     chunks = config.load_chunk_config()
-
-    if voting_mode is True and voting_secret is None:
-        logging.getLogger('main').error("You must provide a secret (-s) to use voting mode. Exiting.")
-        exit(1)
 
     if len(chunks) is 0:
         logging.getLogger('main').error("No chunks defined. Exiting.")
@@ -303,4 +232,3 @@ if __name__ == "__main__":
     print('Server started')
     print("Listening on {}:{}".format(args.host, args.port))
     reactor.run()
-

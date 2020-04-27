@@ -8,9 +8,8 @@ from quarry.types.buffer import Buffer
 
 class Chunk:
 
-    def __init__(self, name: str, contributors: list, environment: dict, folder: str, viewpoints: list):
+    def __init__(self, name: str, environment: dict, folder: str, viewpoints: list):
         self.name = name
-        self.contributors = contributors
 
         self.time = environment.get('time', 0)
         self.dimension = environment.get('dimension', 'Overworld')
@@ -57,32 +56,3 @@ class Chunk:
                 "yaw_256": 0,
                 "pitch": 0
             })
-
-    def credit_string(self):
-        contributors = ", ".join(self.contributors[0:-2])
-        contributors += self.contributors[-1] if len(self.contributors) is 1 else "and " + self.contributors[-1]
-
-        return self.name + " by " + contributors
-
-    def credit_json(self):
-        return json.dumps({
-            "text": "\"" + self.name + "\"\n",
-            "italic": True,
-            "color": "green",
-            "extra": [
-                {
-                    "text": "Created by ",
-                    "italic": False
-                },
-                {
-                    "text": ", ".join(self.contributors[0:-2]),
-                    "italic": False,
-                    "color": "yellow"
-                },
-                {
-                    "text": self.contributors[-1] if len(self.contributors) is 1 else "and " + self.contributors[-1],
-                    "italic": False,
-                    "color": "yellow"
-                }
-            ]
-        })

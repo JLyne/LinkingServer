@@ -15,7 +15,6 @@ def load_chunk_config():
 
         for entry in entries:
             name = entry.get('name', 'Untitled')
-            contributors = entry.get('contributors', list())
             environment = entry.get('environment', dict())
             folder = entry.get('folder')
             viewpoints = entry.get('viewpoints', list())
@@ -30,8 +29,8 @@ def load_chunk_config():
                 logger.error('Folder for entry %s does not exist. Skipped.', name)
                 continue
 
-            chunk = Chunk(name, contributors, environment, folder, viewpoints)
-            logger.info('Loaded {}', chunk.credit_string)
+            chunk = Chunk(name, environment, folder, viewpoints)
+            logger.info('Loaded {}', chunk.name)
 
             chunks.append(chunk)
 
