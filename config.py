@@ -1,5 +1,6 @@
 import logging
 import os
+import glob
 
 from chunk import Chunk
 
@@ -7,9 +8,12 @@ import yaml
 
 logger = logging.getLogger('config')
 
-def load_chunk_config():
-    chunks = list()
+chunks = {
+    '1.15': [],
+    '1.16': [],
+}
 
+def load_chunk_config():
     with open(r'config.yml') as file:
         entries = yaml.load(file)
 
@@ -29,9 +33,18 @@ def load_chunk_config():
                 logger.error('Folder for entry %s does not exist. Skipped.', name)
                 continue
 
-            chunk = Chunk(name, environment, folder, viewpoints)
-            logger.info('Loaded {}', chunk.name)
+            for subfolder in glob.glob(os.path.join(folder_path, '*/')):
+                version = os.path.basename(os.path.normpath(subfolder))
 
-            chunks.append(chunk)
+                if chunks.get(version) is not None:
+                    chunk = Chunk(name, environment, folder, version, viewpoints)
+                    logger.info('Loaded {} for version {}', chunk.name, version)
+
+                    chunks[version].append(chunk)
+
+        for version in chunks:
+            if len(chunks[version]) == 0:
+                logger.error('No entries defined for {}'.format(str(version)))
+                exit(1)
 
         return chunks
