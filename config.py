@@ -11,6 +11,7 @@ logger = logging.getLogger('config')
 chunks = {
     '1.15': [],
     '1.16': [],
+    '1.16.2': [],
 }
 
 def load_chunk_config():

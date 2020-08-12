@@ -42,6 +42,10 @@ class Protocol(ServerProtocol):
             from versions import Version_1_16
 
             self.version = Version_1_16(self)
+        elif p_protocol_version == 751:
+            from versions import Version_1_16_2
+
+            self.version = Version_1_16_2(self)
         else:
             self.close("Unsupported Minecraft Version")
 
