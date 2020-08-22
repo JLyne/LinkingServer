@@ -1,21 +1,18 @@
-"""
-Empty server that send the _bare_ minimum data to keep a minecraft client connected
-"""
-import logging
-import random
-import time
 import json
 from argparse import ArgumentParser
 from copy import deepcopy
 
-import config
+import hmac
 
+import logging
 from twisted.internet import reactor
 from quarry.net.server import ServerFactory, ServerProtocol
 
 from quarry.types.uuid import UUID
 
 from prometheus import set_players_online, init_prometheus
+
+linking_secret = None
 
 class Protocol(ServerProtocol):
     def __init__(self, factory, remote_addr):
@@ -81,6 +78,38 @@ class Protocol(ServerProtocol):
     def packet_chat_message(self, buff):
         self.version.packet_chat_message(buff)
 
+    def packet_animation(self, buff):
+        self.version.send_open_book()
+        buff.discard()
+
+    def packet_use_item(self, buff):
+        self.version.send_open_book()
+        buff.discard()
+
+    def packet_plugin_message(self, buff):
+        channel = buff.unpack_string()
+        data = buff.read()
+
+        if channel != "proxydiscord:status":
+            return
+
+        try:
+            payload = json.loads(data.decode(encoding="utf-8"))
+            payload_hmac = payload.get("hmac")
+
+            msg = "{0:d}{1:d}{2:s}".format(payload.get("status"), payload.get("bedrock"), payload.get("token"))
+            calculated_hmac = hmac.new(key=str.encode(linking_secret, encoding="utf-8"),
+                                       msg=str.encode(msg, encoding="utf-8"), digestmod="sha512")
+
+            if calculated_hmac.hexdigest() != payload_hmac:
+                self.logger.warn("Ignoring invalid plugin message for {}".format(self.display_name))
+                return
+
+            self.version.status_received(payload)
+        except:
+            self.logger.warn("Exception handling plugin message for {}".format(self.display_name))
+            return
+
 
 if __name__ == "__main__":
     parser = ArgumentParser()
@@ -88,6 +117,7 @@ if __name__ == "__main__":
     parser.add_argument("-p", "--port", default=25567, type=int, help="bind port")
     parser.add_argument("-m", "--max", default=65535, type=int, help="player count")
     parser.add_argument("-r", "--metrics", default=None, type=int, help="expose prometheus metrics on specified port")
+    parser.add_argument("-s", "--secret", type=str, help="Shared secret for linking HMAC")
 
     args = parser.parse_args()
 
@@ -99,8 +129,11 @@ if __name__ == "__main__":
     server_factory.compression_threshold = 5646848
 
     metrics_port = args.metrics
+    linking_secret = args.secret
 
-    config.load_chunk_config()
+    if linking_secret is None:
+        logging.getLogger('main').error("You must provide a linking secret (-s). Exiting.")
+        exit(1)
 
     if metrics_port is not None:
         init_prometheus(metrics_port)

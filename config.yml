@@ -1,8 +1,0 @@
-- name: Linking
-  contributors:
-    - Katuen
-  environment:
-    time: 18000
-  folder: linking
-  viewpoints:
-    - 7.441,68.136,2.263,-179.9999,6.1
