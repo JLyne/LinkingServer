@@ -86,6 +86,12 @@ class Protocol(ServerProtocol):
         self.version.send_open_book()
         buff.discard()
 
+    def packet_held_item_change(self, buff):
+        buff.discard()
+
+        if self.version.is_bedrock:
+            self.version.send_book()
+
     def packet_plugin_message(self, buff):
         channel = buff.unpack_string()
         data = buff.read()

@@ -19,6 +19,7 @@ class Version_1_16_2(Version_1_16):
         'coordinate_scale': TagFloat(1.0),
         'ultrawarm': TagByte(0),
         'has_ceiling': TagByte(0),
+        'fixed_time': TagInt(18000),
     }
     dimension = {
         'name': TagString("minecraft:overworld"),
@@ -73,8 +74,9 @@ class Version_1_16_2(Version_1_16):
 
         self.protocol.send_packet("join_game",
                          self.protocol.buff_type.pack("i?BB", 0, False, 3, 3),
-                         self.protocol.buff_type.pack_varint(1),
+                         self.protocol.buff_type.pack_varint(2),
                          self.protocol.buff_type.pack_string("rtgame:linking"),
+                         self.protocol.buff_type.pack_string("rtgame:reset"),
                          self.protocol.buff_type.pack_nbt(codec),
                          self.protocol.buff_type.pack_nbt(self.current_dimension),
                          self.protocol.buff_type.pack_string("rtgame:linking"),
@@ -82,3 +84,33 @@ class Version_1_16_2(Version_1_16):
                          self.protocol.buff_type.pack_varint(0),
                          self.protocol.buff_type.pack_varint(32),
                          self.protocol.buff_type.pack("????", False, True, False, False))
+
+    def send_world(self):
+        data = [
+            self.protocol.buff_type.pack_varint(0),
+            self.protocol.buff_type.pack_nbt(TagRoot({'': TagCompound({})})),
+            self.protocol.buff_type.pack_varint(1024),
+        ]
+
+        for i in range(0, 1024):
+            data.append(self.protocol.buff_type.pack_varint(0))
+
+        data.append(self.protocol.buff_type.pack_varint(0))
+        data.append(self.protocol.buff_type.pack_varint(0))
+
+        for x in range(-3, 4):
+            for y in range(-3, 4):
+                self.protocol.send_packet("chunk_data", self.protocol.buff_type.pack("ii?", x, y, True), *data)
+
+    def send_respawn(self):
+        self.protocol.send_packet("respawn",
+                                  self.protocol.buff_type.pack_nbt(self.current_dimension),
+                                  self.protocol.buff_type.pack_string("rtgame:reset"),
+                                  self.protocol.buff_type.pack("qBB", 0, 1, 1),
+                                  self.protocol.buff_type.pack("???", False, False, True))
+
+        self.protocol.send_packet("respawn",
+                                  self.protocol.buff_type.pack_nbt(self.current_dimension),
+                                  self.protocol.buff_type.pack_string("rtgame:linking"),
+                                  self.protocol.buff_type.pack("qBB", 0, 1, 1),
+                                  self.protocol.buff_type.pack("???", False, False, True))

@@ -30,11 +30,25 @@ class Version(object, metaclass=abc.ABCMeta):
         self.protocol.ticker.add_delay(20, self.status_timeout)
 
     def status_received(self, payload):
+        first_status = not self.status_packet_received
+
         self.status_packet_received = True
         self.linking_token = payload.get("token")
         self.linking_status = payload.get("status")
         self.is_bedrock = payload.get("bedrock")
-        self.send_book()
+
+        if self.is_bedrock:
+            if first_status:
+                self.send_world()
+            else:
+                self.send_respawn()
+                self.send_world()
+
+            self.send_book()
+            self.protocol.ticker.add_delay(40, self.send_title)
+        else :
+            self.send_book()
+
 
     def send_tablist(self):
         self.protocol.send_packet("player_list_header_footer",
@@ -90,3 +104,11 @@ class Version(object, metaclass=abc.ABCMeta):
     def send_open_book(self):
         raise NotImplementedError('users must define send_open_book to use this base class')
 
+    def send_world(self):
+        raise NotImplementedError('users must define send_world to use this base class')
+
+    def send_title(self):
+        raise NotImplementedError('users must define send_title to use this base class')
+
+    def send_respawn(self):
+        raise NotImplementedError('users must define send_respawn to use this base class')

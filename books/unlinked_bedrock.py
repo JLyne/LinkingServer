@@ -6,8 +6,7 @@ pages = [
         "extra": [
             {
                 "text": "Linking Instructions\n\n",
-                "bold": True,
-                "underlined": True
+                "bold": True
             },
             {
                 "text": "Hi Virtual Lego Gamer.\n\n",
@@ -25,12 +24,56 @@ pages = [
         ]
     }),
     json.dumps({
+       "text": "",
+    }),
+    json.dumps({
+        "text": "",
+        "extra": [
+            {
+                "text": "Bedrock support is experimental\n\n",
+                "bold": True
+            },
+            {
+                "text": "The necessary software is still under development.\n\n",
+            },
+            {
+                "text": "Please expect bugs which will impact gameplay.\n\n",
+                "color": "red",
+                "bold": True
+            },
+            {
+                "text": "Any data or item loss may be unrecoverable.",
+            },
+        ]
+    }),
+    json.dumps({
+        "text": "",
+        "extra": [
+            {
+                "text": "Own Java Edition?\n\n",
+                "bold": True
+            },
+            {
+                "text": "If you also own Java Edition, you should complete the linking process there instead.\n\n",
+            },
+            {
+                "text": "You can then also link your Java and Bedrock accounts together, using ",
+            },
+            {
+                "text": "/linkaccount",
+                "color": "blue"
+            },
+            {
+                "text": " to share your Java progress between them."
+            }
+        ]
+    }),
+    json.dumps({
         "text": "",
         "extra": [
             {
                 "text": "Step 1\n\n",
-                "bold": True,
-                "underlined": True
+                "bold": True
             },
             {
                 "text": "Check you are subscribed to ",
@@ -48,8 +91,7 @@ pages = [
             },
             {
                 "text": "twitch.tv/subscriptions\n\n",
-                "color": "#1987ff",
-                "underlined": True,
+                "color": "#1987ff"
             },
             {
                 "text": "Any subscription tier will do, including prime.",
@@ -61,8 +103,7 @@ pages = [
         "extra": [
             {
                 "text": "Step 2\n\n",
-                "bold": True,
-                "underlined": True
+                "bold": True
             },
             {
                 "text": "Join the RTGame",
@@ -73,8 +114,7 @@ pages = [
             },
             {
                 "text": "discord.gg/rtgame\n\n",
-                "color": "#1987ff",
-                "underlined": True,
+                "color": "#1987ff"
             },
             {
                 "text": "We use the Discord server to verify your subscription status, deliver server news and provide support.",
@@ -86,8 +126,7 @@ pages = [
         "extra": [
             {
                 "text": "Step 3\n\n",
-                "bold": True,
-                "underlined": True
+                "bold": True
             },
             {
                 "text": "Connect your ",
@@ -108,8 +147,7 @@ pages = [
             },
             {
                 "text": "youtu.be/sQnhk2JIeGs\n\n",
-                "color": "#1987ff",
-                "underlined": True,
+                "color": "#1987ff"
             },
             {
                 "text": "This will grant you the ",
@@ -128,8 +166,7 @@ pages = [
         "extra": [
             {
                 "text": "Step 4\n\n",
-                "bold": True,
-                "underlined": True
+                "bold": True
             },
             {
                 "text": "Wait\n\n",
@@ -138,15 +175,13 @@ pages = [
                 "text": "Discord syncs Twitch Subscriptions "
             },
             {
-                "text": "once an hour",
-                "underlined": True,
+                "text": "once an hour"
             },
             {
                 "text": ".\n\nYou may need to wait ",
             },
             {
-                "text": "up to an hour",
-                "underlined": True,
+                "text": "up to an hour"
             },
             {
                 "text": " after connecting your Twitch account, to receive the ",
@@ -165,8 +200,7 @@ pages = [
         "extra": [
             {
                 "text": "Step 5\n\n",
-                "bold": True,
-                "underlined": True
+                "bold": True
             },
             {
                 "text": "Go to the "
@@ -179,7 +213,7 @@ pages = [
                 "text": "channel and send:\n\n"
             },
             {
-                "text": "!link [token]\n",
+                "text": "!link [token]\n\n",
                 "color": "#FF55FF",
             },
             {
@@ -192,8 +226,7 @@ pages = [
         "extra": [
             {
                 "text": "All done!\n\n",
-                "bold": True,
-                "underlined": True
+                "bold": True
             },
             {
                 "text": "Game on!\n\n"

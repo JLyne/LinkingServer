@@ -27,6 +27,51 @@ pages = [
             }
         ]
     }),
+        json.dumps({
+       "text": "",
+    }),
+    json.dumps({
+        "text": "",
+        "extra": [
+            {
+                "text": "Bedrock support is experimental\n\n",
+                "bold": True
+            },
+            {
+                "text": "The necessary software is still under development.\n\n",
+            },
+            {
+                "text": "Please expect bugs which will impact gameplay.\n\n",
+                "color": "red",
+                "bold": True
+            },
+            {
+                "text": "Any data or item loss may be unrecoverable.",
+            },
+        ]
+    }),
+    json.dumps({
+        "text": "",
+        "extra": [
+            {
+                "text": "Own Java Edition?\n\n",
+                "bold": True
+            },
+            {
+                "text": "If you also own Java Edition, you should complete the linking process there instead.\n\n",
+            },
+            {
+                "text": "You can then also link your Java and Bedrock accounts together, using ",
+            },
+            {
+                "text": "/linkaccount",
+                "color": "blue"
+            },
+            {
+                "text": " to share your Java progress between them."
+            }
+        ]
+    }),
     json.dumps({
         "text": "",
         "extra": [
@@ -36,7 +81,7 @@ pages = [
                 "underlined": True
             },
             {
-                "text": "Check your RTGameCrowd",
+                "text": "Check your RTGameCrowd ",
             },
             {
                 "text": "Twitch",

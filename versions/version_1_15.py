@@ -1,3 +1,4 @@
+import json
 import book
 from versions import Version
 
@@ -37,3 +38,11 @@ class Version_1_15(Version):
     def send_open_book(self):
         self.protocol.send_packet("held_item_change", self.protocol.buff_type.pack("b", 0))
         self.protocol.send_packet("open_book", self.protocol.buff_type.pack_varint(0))
+
+    def send_title(self):
+        self.protocol.send_packet("title",
+                                  self.protocol.buff_type.pack_varint(0),
+                                  self.protocol.buff_type.pack_string(json.dumps({"text": "Read the Book"})))
+        self.protocol.send_packet("title",
+                                  self.protocol.buff_type.pack_varint(3),
+                                  self.protocol.buff_type.pack("iii", 10, 72000, 72000))
