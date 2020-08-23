@@ -70,13 +70,11 @@ class Protocol(ServerProtocol):
         set_players_online(len(self.factory.players))
 
         self.version.player_joined()
+
     def player_left(self):
         super().player_left()
 
         set_players_online(len(self.factory.players))
-
-    def packet_chat_message(self, buff):
-        self.version.packet_chat_message(buff)
 
     def packet_animation(self, buff):
         self.version.send_open_book()
