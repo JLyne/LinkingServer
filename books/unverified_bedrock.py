@@ -23,7 +23,7 @@ pages = [
                 "text": " role, which is required to play on this server\n\n"
             },
             {
-                "text": "To solve this, please follow the steps list in this book."
+                "text": "To solve this, please follow the steps listed in this book."
             }
         ]
     }),
