@@ -6,7 +6,7 @@ from quarry.types.uuid import UUID
 from linkingserver import Protocol
 
 class Version(object, metaclass=abc.ABCMeta):
-    def __init__(self, protocol: Protocol):
+    def __init__(self, protocol: Protocol, bedrock: False):
         self.protocol = protocol
         self.uuid = UUID.from_offline_player('NotKatuen')
 
@@ -15,7 +15,7 @@ class Version(object, metaclass=abc.ABCMeta):
 
         self.linking_status = None
         self.linking_token = None
-        self.is_bedrock = None
+        self.is_bedrock = bedrock
 
     def player_joined(self):
         self.send_join_game()
@@ -23,7 +23,7 @@ class Version(object, metaclass=abc.ABCMeta):
         self.protocol.ticker.add_loop(100, self.send_keep_alive)  # Keep alive packets
 
         self.protocol.send_packet("player_position_and_look",
-                             self.protocol.buff_type.pack("dddff?", 0, 0, 0, 0.0, 0.0, 0b00000),
+                             self.protocol.buff_type.pack("dddff?", 0, 2048, 0, 0.0, 0.0, 0b00000),
                                     self.protocol.buff_type.pack_varint(0))
 
         self.protocol.ticker.add_delay(10, self.send_tablist)
@@ -35,15 +35,12 @@ class Version(object, metaclass=abc.ABCMeta):
         self.status_packet_received = True
         self.linking_token = payload.get("token")
         self.linking_status = payload.get("status")
-        self.is_bedrock = payload.get("bedrock")
 
         if self.is_bedrock:
-            if first_status:
-                self.send_world()
-            else:
+            if not first_status:
                 self.send_respawn()
-                self.send_world()
 
+            self.send_world()
             self.send_book()
             self.protocol.ticker.add_delay(40, self.send_title)
         else :

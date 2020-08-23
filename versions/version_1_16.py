@@ -1,11 +1,11 @@
-from quarry.types.nbt import TagList, TagCompound, TagRoot, TagString, TagByte, TagFloat, TagLong, TagInt
+from quarry.types.nbt import TagList, TagCompound, TagRoot, TagString, TagByte, TagFloat, TagInt
 
 from versions import Version_1_15
 from linkingserver import Protocol
 
 class Version_1_16(Version_1_15):
-    def __init__(self, protocol: Protocol):
-        super(Version_1_16, self).__init__(protocol)
+    def __init__(self, protocol: Protocol, bedrock: False):
+        super(Version_1_16, self).__init__(protocol, bedrock)
         self.version_name = '1.16'
 
         self.written_book_id = 825

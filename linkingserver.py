@@ -20,6 +20,7 @@ class Protocol(ServerProtocol):
 
         self.forwarded_uuid = None
         self.forwarded_host = None
+        self.is_bedrock = False
         self.version = None
 
         super(Protocol, self).__init__(factory, remote_addr)
@@ -31,30 +32,37 @@ class Protocol(ServerProtocol):
         p_protocol_version = buff2.unpack_varint()
         p_connect_host = buff2.unpack_string()
 
-        if p_protocol_version == 578:
-            from versions import Version_1_15
-
-            self.version = Version_1_15(self)
-        elif p_protocol_version == 736:
-            from versions import Version_1_16
-
-            self.version = Version_1_16(self)
-        elif p_protocol_version == 751:
-            from versions import Version_1_16_2
-
-            self.version = Version_1_16_2(self)
-        else:
-            self.close("Unsupported Minecraft Version")
-
         # Bungeecord ip forwarding, ip/uuid is included in host string separated by \00s
         split_host = str.split(p_connect_host, "\00")
 
         if len(split_host) >= 3:
-            host = split_host[1]
-            online_uuid = split_host[2]
+            #TODO: Should probably verify the encrypted data in some way. Not important until something on this server uses uuids
+            if split_host[1] == 'Geyser-Floodgate':
+                self.is_bedrock = True
+
+                host = split_host[4]
+                online_uuid = split_host[5]
+            else :
+                host = split_host[1]
+                online_uuid = split_host[2]
 
             self.forwarded_host = host
             self.forwarded_uuid = UUID.from_hex(online_uuid)
+
+        if p_protocol_version == 578:
+            from versions import Version_1_15
+
+            self.version = Version_1_15(self, self.is_bedrock)
+        elif p_protocol_version == 736:
+            from versions import Version_1_16
+
+            self.version = Version_1_16(self, self.is_bedrock)
+        elif p_protocol_version == 751:
+            from versions import Version_1_16_2
+
+            self.version = Version_1_16_2(self, self.is_bedrock)
+        else:
+            self.close("Unsupported Minecraft Version")
 
     def player_joined(self):
         # Overwrite with forwarded information if present
