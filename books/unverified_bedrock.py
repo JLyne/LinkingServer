@@ -64,7 +64,7 @@ pages = [
                 "text": "You can then also link your Java and Bedrock accounts together, using ",
             },
             {
-                "text": "/linkaccount",
+                "text": "/linkbedrock",
                 "color": "blue"
             },
             {
