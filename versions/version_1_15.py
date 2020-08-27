@@ -46,3 +46,13 @@ class Version_1_15(Version):
         self.protocol.send_packet("title",
                                   self.protocol.buff_type.pack_varint(3),
                                   self.protocol.buff_type.pack("iii", 10, 72000, 72000))
+
+    def send_inventory(self):
+        data = [
+            self.protocol.buff_type.pack('Bh', 0, 46)
+        ]
+
+        for i in range(0, 46):
+            data.append(self.protocol.buff_type.pack('?', False))
+
+        self.protocol.send_packet('window_items', *data)

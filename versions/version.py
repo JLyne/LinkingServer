@@ -19,6 +19,7 @@ class Version(object, metaclass=abc.ABCMeta):
 
     def player_joined(self):
         self.send_join_game()
+        self.send_inventory()
 
         self.protocol.ticker.add_loop(100, self.send_keep_alive)  # Keep alive packets
 
@@ -109,3 +110,7 @@ class Version(object, metaclass=abc.ABCMeta):
 
     def send_respawn(self):
         raise NotImplementedError('users must define send_respawn to use this base class')
+
+    @abc.abstractmethod
+    def send_inventory(self):
+        raise NotImplementedError('users must define send_inventory to use this base class')

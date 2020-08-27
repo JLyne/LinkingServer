@@ -100,11 +100,11 @@ class Version_1_16_2(Version_1_16):
         data.append(self.protocol.buff_type.pack_varint(0))
         data.append(self.protocol.buff_type.pack_varint(0))
 
-        for x in range(-3, 4):
-            for y in range(-3, 4):
-                self.protocol.send_packet("chunk_data", self.protocol.buff_type.pack("ii?", x, y, True), *data)
+        if self.is_bedrock: # Clear geyser chunk cache from previous server
+            for x in range(-8, 8):
+                for y in range(-8, 8):
+                    self.protocol.send_packet("chunk_data", self.protocol.buff_type.pack("ii?", x, y, True), *data)
 
-        if self.is_bedrock:
             self.protocol.add_loop(100, self.send_time)
 
     def send_time(self):
