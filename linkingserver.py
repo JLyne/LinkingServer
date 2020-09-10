@@ -16,12 +16,19 @@ linking_secret = None
 
 class Protocol(ServerProtocol):
     def __init__(self, factory, remote_addr):
+        from versions import Version_1_15, Version_1_16, Version_1_16_2
+
         self.uuid = UUID.from_offline_player('NotKatuen')
 
         self.forwarded_uuid = None
         self.forwarded_host = None
         self.is_bedrock = False
         self.version = None
+        self.versions = {
+            578 : Version_1_15,
+            736 : Version_1_16,
+            751 : Version_1_16_2
+        }
 
         super(Protocol, self).__init__(factory, remote_addr)
 
@@ -49,18 +56,14 @@ class Protocol(ServerProtocol):
             self.forwarded_host = host
             self.forwarded_uuid = UUID.from_hex(online_uuid)
 
-        if p_protocol_version == 578:
-            from versions import Version_1_15
+        version = None
 
-            self.version = Version_1_15(self, self.is_bedrock)
-        elif p_protocol_version == 736:
-            from versions import Version_1_16
+        for pv, v in self.versions.items():
+            if p_protocol_version >= pv:
+                version = v
 
-            self.version = Version_1_16(self, self.is_bedrock)
-        elif p_protocol_version == 751:
-            from versions import Version_1_16_2
-
-            self.version = Version_1_16_2(self, self.is_bedrock)
+        if version is not None:
+            self.version = version(self, self.is_bedrock)
         else:
             self.close("Unsupported Minecraft Version")
 
@@ -105,22 +108,22 @@ class Protocol(ServerProtocol):
         if channel != "proxydiscord:status":
             return
 
-        try:
-            payload = json.loads(data.decode(encoding="utf-8"))
-            payload_hmac = payload.get("hmac")
+    #    try:
+        payload = json.loads(data.decode(encoding="utf-8"))
+        payload_hmac = payload.get("hmac")
 
-            msg = "{0:d}{1:d}{2:s}".format(payload.get("status"), payload.get("bedrock"), payload.get("token"))
-            calculated_hmac = hmac.new(key=str.encode(linking_secret, encoding="utf-8"),
-                                       msg=str.encode(msg, encoding="utf-8"), digestmod="sha512")
+        msg = "{0:d}{1:d}{2:s}".format(payload.get("status"), payload.get("bedrock"), payload.get("token"))
+        calculated_hmac = hmac.new(key=str.encode(linking_secret, encoding="utf-8"),
+                                   msg=str.encode(msg, encoding="utf-8"), digestmod="sha512")
 
-            if calculated_hmac.hexdigest() != payload_hmac:
-                self.logger.warn("Ignoring invalid plugin message for {}".format(self.display_name))
-                return
-
-            self.version.status_received(payload)
-        except:
-            self.logger.warn("Exception handling plugin message for {}".format(self.display_name))
+        if calculated_hmac.hexdigest() != payload_hmac:
+            self.logger.warn("Ignoring invalid plugin message for {}".format(self.display_name))
             return
+
+        self.version.status_received(payload)
+      #except:
+      #    self.logger.warn("Exception handling plugin message for {}".format(self.display_name))
+      #    return
 
 
 if __name__ == "__main__":

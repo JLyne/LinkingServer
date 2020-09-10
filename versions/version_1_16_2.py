@@ -105,7 +105,7 @@ class Version_1_16_2(Version_1_16):
                 for y in range(-8, 8):
                     self.protocol.send_packet("chunk_data", self.protocol.buff_type.pack("ii?", x, y, True), *data)
 
-            self.protocol.add_loop(100, self.send_time)
+            self.protocol.ticker.add_loop(100, self.send_time)
 
     def send_time(self):
             self.protocol.send_packet("time_update", self.protocol.buff_type.pack("ll", 0, -18000))
