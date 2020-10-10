@@ -18,8 +18,6 @@ class Version_1_15(Version):
                          self.protocol.buff_type.pack_varint(16),
                          self.protocol.buff_type.pack("??", False, True))
 
-        self.protocol.send_packet("time_update", self.protocol.buff_type.pack("ll", 0, -18000))
-
     def send_book(self):
         if self.linking_status is 1:
             nbt = book.unlinked_book(self.linking_token, self.is_bedrock)
