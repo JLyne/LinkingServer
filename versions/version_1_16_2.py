@@ -1,4 +1,4 @@
-from quarry.types.nbt import TagList, TagCompound, TagRoot, TagString, TagByte, TagFloat, TagInt
+from quarry.types.nbt import TagList, TagCompound, TagRoot, TagString, TagByte, TagFloat, TagInt, NBTFile
 
 from versions import Version_1_16
 from linkingserver import Protocol
@@ -37,26 +37,7 @@ class Version_1_16_2(Version_1_16):
             '': TagCompound(self.dimension_settings),
         })
 
-        self.biomes = [
-            TagCompound({
-                'name': TagString("minecraft:plains"),
-                'id': TagInt(1),
-                'element': TagCompound({
-                    'precipitation': TagString("none"),
-                    'effects': TagCompound({
-                        'sky_color': TagInt(0),
-                        'water_fog_color': TagInt(0),
-                        'fog_color': TagInt(0),
-                        'water_color': TagInt(0),
-                    }),
-                    'depth': TagFloat(0.1),
-                    'temperature': TagFloat(0.5),
-                    'scale': TagFloat(0.2),
-                    'downfall': TagFloat(0.5),
-                    'category': TagString("plains")
-                }),
-            }),
-        ]
+        self.biomes = NBTFile(TagRoot({})).load('biomes.nbt')
 
     def send_join_game(self):
         codec = TagRoot({
@@ -67,10 +48,7 @@ class Version_1_16_2(Version_1_16):
                         TagCompound(self.dimension)
                     ]),
                 }),
-                'minecraft:worldgen/biome': TagCompound({
-                    'type': TagString("minecraft:worldgen/biome"),
-                    'value': TagList(self.biomes),
-                })
+                'minecraft:worldgen/biome': self.biomes.root_tag.body
             })
         })
 
