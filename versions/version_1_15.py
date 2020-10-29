@@ -9,7 +9,7 @@ class Version_1_15(Version):
         super(Version_1_15, self).__init__(protocol, bedrock)
         self.version_name = '1.15'
 
-        self.written_book_id = 825
+        self.written_book_id = 759
 
     def send_join_game(self):
         self.protocol.send_packet("join_game",
