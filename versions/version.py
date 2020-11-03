@@ -8,7 +8,6 @@ from linkingserver import Protocol
 class Version(object, metaclass=abc.ABCMeta):
     def __init__(self, protocol: Protocol, bedrock: False):
         self.protocol = protocol
-        self.uuid = UUID.from_offline_player('NotKatuen')
 
         self.version_name = None
         self.status_packet_received = False
@@ -51,16 +50,19 @@ class Version(object, metaclass=abc.ABCMeta):
     def send_tablist(self):
         self.protocol.send_packet("player_list_header_footer",
                          self.protocol.buff_type.pack_string(json.dumps({
-                            "text": 'Gamers Online: ',
-                            "extra": [
-                                {
-                                    "text": "123",
-                                    "obfuscated": True,
-                                    "color": "green"
-                                },
-                            ]
-                        })),
+                            "text": "\ue340\uf801\ue341\n\ue342\uf801\ue343"
+                         })),
                          self.protocol.buff_type.pack_string(json.dumps({"translate": ""})))
+
+        self.protocol.send_packet("player_list_item",
+                         self.protocol.buff_type.pack_varint(0),
+                         self.protocol.buff_type.pack_varint(1),
+                         self.protocol.buff_type.pack_uuid(self.protocol.uuid),
+                         self.protocol.buff_type.pack_string(self.protocol.display_name),
+                         self.protocol.buff_type.pack_varint(0),
+                         self.protocol.buff_type.pack_varint(1),
+                         self.protocol.buff_type.pack_varint(1),
+                         self.protocol.buff_type.pack_varint(0))
 
     def send_commands(self):
         commands = {
