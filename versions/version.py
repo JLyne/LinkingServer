@@ -50,7 +50,7 @@ class Version(object, metaclass=abc.ABCMeta):
     def send_tablist(self):
         self.protocol.send_packet("player_list_header_footer",
                          self.protocol.buff_type.pack_string(json.dumps({
-                            "text": "\ue300"
+                            "text": "\n\ue300\n"
                          })),
                          self.protocol.buff_type.pack_string(json.dumps({"translate": ""})))
 
