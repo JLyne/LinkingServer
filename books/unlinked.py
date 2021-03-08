@@ -36,7 +36,7 @@ pages = [
                 "text": "Check you are subscribed to ",
             },
             {
-                "text": "RTGameCrowd",
+                "text": "RTGame",
                 "bold": True,
             },
             {
