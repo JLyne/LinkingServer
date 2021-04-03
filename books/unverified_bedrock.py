@@ -121,7 +121,7 @@ pages = [
                 "underlined": True,
             },
             {
-                "text": "You must remain in the Discord server after linking, otherwise we cannot verify your subscription status",
+                "text": "You must remain in the Discord server after linking, otherwise we cannot verify your subscription status.",
             }
         ]
     }),
@@ -171,7 +171,7 @@ pages = [
                 "color": "#9147ff"
             },
             {
-                "text": " connection still exists in discord, or try deleting it and reconnecting.",
+                "text": " connection still exists in discord, or try recreating it.",
             }
         ]
     }),
@@ -201,7 +201,7 @@ pages = [
                 "underlined": True,
             },
             {
-                "text": " after connecting your Twitch account or subscribing, to receive the ",
+                "text": " to receive the ",
             },
             {
                 "text": "Twitch Subscriber",
@@ -231,7 +231,7 @@ pages = [
                 "text": " or someone in "
             },
             {
-                "text": "#minecraft_server ",
+                "text": "#minecraft_chat ",
                 "color": "#7289da",
             },
             {

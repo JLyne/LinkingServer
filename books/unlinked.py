@@ -340,7 +340,7 @@ pages = [
                 "text": " or someone in "
             },
             {
-                "text": "#minecraft_server ",
+                "text": "#minecraft_chat ",
                 "color": "#7289da",
                 "clickEvent": {
                     "action": "open_url",
@@ -348,7 +348,7 @@ pages = [
                 },
                 "hoverEvent": {
                     "action": "show_text",
-                    "value": "Click to open #minecraft_server in your browser"
+                    "value": "Click to open #minecraft_chat in your browser"
                 },
             },
             {

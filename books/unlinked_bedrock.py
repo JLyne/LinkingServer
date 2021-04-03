@@ -242,7 +242,7 @@ pages = [
                 "text": " or someone in "
             },
             {
-                "text": "#minecraft_server ",
+                "text": "#minecraft_chat ",
                 "color": "#7289da",
             },
             {
