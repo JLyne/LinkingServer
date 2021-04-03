@@ -36,7 +36,7 @@ pages = [
                 "underlined": True
             },
             {
-                "text": "Check your RTGameCrowd",
+                "text": "Check your RTGame ",
             },
             {
                 "text": "Twitch",
