@@ -49,7 +49,10 @@ class Protocol(ServerProtocol):
 
                 host = split_host[4]
                 online_uuid = split_host[5]
-            else :
+            elif split_host[1].startswith('^Floodgate^'):
+                host = split_host[2]
+                online_uuid = split_host[3]
+            else:
                 host = split_host[1]
                 online_uuid = split_host[2]
 
