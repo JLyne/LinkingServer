@@ -50,6 +50,8 @@ class Protocol(ServerProtocol):
                 host = split_host[4]
                 online_uuid = split_host[5]
             elif split_host[1].startswith('^Floodgate^'):
+                self.is_bedrock = True
+
                 host = split_host[2]
                 online_uuid = split_host[3]
             else:
