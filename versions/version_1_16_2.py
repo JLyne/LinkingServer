@@ -8,9 +8,25 @@ class Version_1_16_2(Version_1_16):
         super(Version_1_16_2, self).__init__(protocol, bedrock)
         self.version_name = '1.16.2'
 
-        self.written_book_id = 826
+        self.dimension_settings = self.get_dimension_settings()
 
-        self.dimension_settings = {
+        self.dimension = {
+            'name': TagString("minecraft:overworld"),
+            'id': TagInt(0),
+            'element': TagCompound(self.dimension_settings),
+        }
+
+        self.current_dimension = TagRoot({
+            '': TagCompound(self.dimension_settings),
+        })
+
+        self.biomes = NBTFile(TagRoot({})).load('biomes.nbt')
+
+    def get_written_book_id(self):
+        return 826
+
+    def get_dimension_settings(self):
+        return {
             'piglin_safe': TagByte(0),
             'natural': TagByte(1),
             'ambient_light': TagFloat(1.0),
@@ -26,18 +42,6 @@ class Version_1_16_2(Version_1_16):
             'has_ceiling': TagByte(0),
             'fixed_time': TagInt(18000),
         }
-
-        self.dimension = {
-            'name': TagString("minecraft:overworld"),
-            'id': TagInt(0),
-            'element': TagCompound(self.dimension_settings),
-        }
-
-        self.current_dimension = TagRoot({
-            '': TagCompound(self.dimension_settings),
-        })
-
-        self.biomes = NBTFile(TagRoot({})).load('biomes.nbt')
 
     def send_join_game(self):
         codec = TagRoot({

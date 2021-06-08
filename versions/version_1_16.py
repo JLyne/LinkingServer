@@ -8,7 +8,9 @@ class Version_1_16(Version_1_15):
         super(Version_1_16, self).__init__(protocol, bedrock)
         self.version_name = '1.16'
 
-        self.written_book_id = 825
+    def get_written_book_id(self):
+        return 825
+
     def send_join_game(self):
         codec = TagRoot({
             '': TagCompound({

@@ -16,16 +16,14 @@ class Version(object, metaclass=abc.ABCMeta):
         self.linking_token = None
         self.is_bedrock = bedrock
 
+        self.written_book_id = self.get_written_book_id()
+
     def player_joined(self):
         self.send_join_game()
         self.send_inventory()
+        self.send_spawn()
 
         self.protocol.ticker.add_loop(100, self.send_keep_alive)  # Keep alive packets
-
-        self.protocol.send_packet("player_position_and_look",
-                             self.protocol.buff_type.pack("dddff?", 0, 2048, 0, 0.0, 0.0, 0b00000),
-                                    self.protocol.buff_type.pack_varint(0))
-
         self.protocol.ticker.add_delay(10, self.send_tablist)
         self.protocol.ticker.add_delay(20, self.status_timeout)
 
@@ -107,6 +105,10 @@ class Version(object, metaclass=abc.ABCMeta):
     def send_world(self):
         raise NotImplementedError('users must define send_world to use this base class')
 
+    @abc.abstractmethod
+    def send_spawn(self):
+        raise NotImplementedError('users must define send_spawn to use this base class')
+
     def send_title(self):
         raise NotImplementedError('users must define send_title to use this base class')
 
@@ -116,3 +118,7 @@ class Version(object, metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def send_inventory(self):
         raise NotImplementedError('users must define send_inventory to use this base class')
+
+    @abc.abstractmethod
+    def get_written_book_id(self):
+        raise NotImplementedError('users must define get_written_book_id to use this base class')

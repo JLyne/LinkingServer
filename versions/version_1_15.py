@@ -9,7 +9,8 @@ class Version_1_15(Version):
         super(Version_1_15, self).__init__(protocol, bedrock)
         self.version_name = '1.15'
 
-        self.written_book_id = 759
+    def get_written_book_id(self):
+        return 759
 
     def send_join_game(self):
         self.protocol.send_packet("join_game",
@@ -54,3 +55,8 @@ class Version_1_15(Version):
             data.append(self.protocol.buff_type.pack('?', False))
 
         self.protocol.send_packet('window_items', *data)
+
+    def send_spawn(self):
+        self.protocol.send_packet("player_position_and_look",
+                             self.protocol.buff_type.pack("dddff?", 0, 2048, 0, 0.0, 0.0, 0b00000),
+                                    self.protocol.buff_type.pack_varint(0))
