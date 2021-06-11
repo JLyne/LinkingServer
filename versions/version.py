@@ -60,9 +60,9 @@ class Version(object, metaclass=abc.ABCMeta):
             self.send_time()
 
     def give_book(self):
-        if self.linking_status is 1:
+        if self.linking_status == 1:
             nbt = book.unlinked_book(self.linking_token, self.is_bedrock)
-        elif self.linking_status is 2:
+        elif self.linking_status == 2:
             nbt = book.unverified_book(self.linking_token, self.is_bedrock)
         else:
             return
