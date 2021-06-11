@@ -5,6 +5,7 @@ from quarry.types.nbt import TagCompound, TagRoot, TagInt
 from versions import Version_1_16_2
 from linkingserver import Protocol
 
+
 class Version_1_17(Version_1_16_2):
     def __init__(self, protocol: Protocol, bedrock: False):
         super(Version_1_17, self).__init__(protocol, bedrock)
@@ -35,7 +36,7 @@ class Version_1_17(Version_1_16_2):
         data.append(self.protocol.buff_type.pack_varint(0))
         data.append(self.protocol.buff_type.pack_varint(0))
 
-        if self.is_bedrock: # Clear geyser chunk cache from previous server
+        if self.is_bedrock:  # Clear geyser chunk cache from previous server
             for x in range(-8, 8):
                 for y in range(-8, 8):
                     self.protocol.send_packet("chunk_data", self.protocol.buff_type.pack("ii", x, y), *data)
@@ -50,6 +51,6 @@ class Version_1_17(Version_1_16_2):
 
     def send_spawn(self):
         self.protocol.send_packet("player_position_and_look",
-                             self.protocol.buff_type.pack("dddff?", 0, 2048, 0, 0.0, 0.0, 0b00000),
-                                    self.protocol.buff_type.pack_varint(0),
-                                    self.protocol.buff_type.pack("?", True))
+                                  self.protocol.buff_type.pack("dddff?", 0, 2048, 0, 0.0, 0.0, 0b00000),
+                                  self.protocol.buff_type.pack_varint(0),
+                                  self.protocol.buff_type.pack("?", True))

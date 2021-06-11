@@ -3,6 +3,7 @@ from quarry.types.nbt import TagList, TagCompound, TagRoot, TagString, TagByte, 
 from versions import Version_1_16
 from linkingserver import Protocol
 
+
 class Version_1_16_2(Version_1_16):
     def __init__(self, protocol: Protocol, bedrock: False):
         super(Version_1_16_2, self).__init__(protocol, bedrock)
@@ -57,17 +58,17 @@ class Version_1_16_2(Version_1_16):
         })
 
         self.protocol.send_packet("join_game",
-                         self.protocol.buff_type.pack("i?BB", 0, False, 3, 3),
-                         self.protocol.buff_type.pack_varint(2),
-                         self.protocol.buff_type.pack_string("rtgame:linking"),
-                         self.protocol.buff_type.pack_string("rtgame:reset"),
-                         self.protocol.buff_type.pack_nbt(codec),
-                         self.protocol.buff_type.pack_nbt(self.current_dimension),
-                         self.protocol.buff_type.pack_string("rtgame:linking"),
-                         self.protocol.buff_type.pack("q", 0),
-                         self.protocol.buff_type.pack_varint(0),
-                         self.protocol.buff_type.pack_varint(32),
-                         self.protocol.buff_type.pack("????", False, True, False, False))
+                                  self.protocol.buff_type.pack("i?BB", 0, False, 3, 3),
+                                  self.protocol.buff_type.pack_varint(2),
+                                  self.protocol.buff_type.pack_string("rtgame:linking"),
+                                  self.protocol.buff_type.pack_string("rtgame:reset"),
+                                  self.protocol.buff_type.pack_nbt(codec),
+                                  self.protocol.buff_type.pack_nbt(self.current_dimension),
+                                  self.protocol.buff_type.pack_string("rtgame:linking"),
+                                  self.protocol.buff_type.pack("q", 0),
+                                  self.protocol.buff_type.pack_varint(0),
+                                  self.protocol.buff_type.pack_varint(32),
+                                  self.protocol.buff_type.pack("????", False, True, False, False))
 
     def send_world(self):
         data = [
@@ -82,7 +83,7 @@ class Version_1_16_2(Version_1_16):
         data.append(self.protocol.buff_type.pack_varint(0))
         data.append(self.protocol.buff_type.pack_varint(0))
 
-        if self.is_bedrock: # Clear geyser chunk cache from previous server
+        if self.is_bedrock:  # Clear geyser chunk cache from previous server
             for x in range(-8, 8):
                 for y in range(-8, 8):
                     self.protocol.send_packet("chunk_data", self.protocol.buff_type.pack("ii?", x, y, True), *data)
@@ -90,7 +91,7 @@ class Version_1_16_2(Version_1_16):
             self.protocol.ticker.add_loop(100, self.send_time)
 
     def send_time(self):
-            self.protocol.send_packet("time_update", self.protocol.buff_type.pack("ll", 0, -18000))
+        self.protocol.send_packet("time_update", self.protocol.buff_type.pack("ll", 0, -18000))
 
     def send_respawn(self):
         self.protocol.send_packet("respawn",

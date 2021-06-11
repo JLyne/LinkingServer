@@ -4,6 +4,7 @@ from versions import Version
 
 from linkingserver import Protocol
 
+
 class Version_1_15(Version):
     def __init__(self, protocol: Protocol, bedrock: False):
         super(Version_1_15, self).__init__(protocol, bedrock)
@@ -14,10 +15,10 @@ class Version_1_15(Version):
 
     def send_join_game(self):
         self.protocol.send_packet("join_game",
-                         self.protocol.buff_type.pack("iBqiB", 0, 3, 0, 0, 0),
-                         self.protocol.buff_type.pack_string("default"),
-                         self.protocol.buff_type.pack_varint(16),
-                         self.protocol.buff_type.pack("??", False, True))
+                                  self.protocol.buff_type.pack("iBqiB", 0, 3, 0, 0, 0),
+                                  self.protocol.buff_type.pack_string("default"),
+                                  self.protocol.buff_type.pack_varint(16),
+                                  self.protocol.buff_type.pack("??", False, True))
 
     def send_book(self):
         if self.linking_status is 1:
@@ -58,5 +59,5 @@ class Version_1_15(Version):
 
     def send_spawn(self):
         self.protocol.send_packet("player_position_and_look",
-                             self.protocol.buff_type.pack("dddff?", 0, 2048, 0, 0.0, 0.0, 0b00000),
-                                    self.protocol.buff_type.pack_varint(0))
+                                  self.protocol.buff_type.pack("dddff?", 0, 2048, 0, 0.0, 0.0, 0b00000),
+                                  self.protocol.buff_type.pack_varint(0))

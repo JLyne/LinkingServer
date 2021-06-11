@@ -1,9 +1,8 @@
 import abc
 import json
 
-from quarry.types.uuid import UUID
-
 from linkingserver import Protocol
+
 
 class Version(object, metaclass=abc.ABCMeta):
     def __init__(self, protocol: Protocol, bedrock: False):
@@ -41,26 +40,25 @@ class Version(object, metaclass=abc.ABCMeta):
             self.send_world()
             self.send_book()
             self.protocol.ticker.add_delay(40, self.send_title)
-        else :
+        else:
             self.send_book()
-
 
     def send_tablist(self):
         self.protocol.send_packet("player_list_header_footer",
-                         self.protocol.buff_type.pack_string(json.dumps({
-                            "text": "\n\ue300\n"
-                         })),
-                         self.protocol.buff_type.pack_string(json.dumps({"translate": ""})))
+                                  self.protocol.buff_type.pack_string(json.dumps({
+                                      "text": "\n\ue300\n"
+                                  })),
+                                  self.protocol.buff_type.pack_string(json.dumps({"translate": ""})))
 
         self.protocol.send_packet("player_list_item",
-                         self.protocol.buff_type.pack_varint(0),
-                         self.protocol.buff_type.pack_varint(1),
-                         self.protocol.buff_type.pack_uuid(self.protocol.uuid),
-                         self.protocol.buff_type.pack_string(self.protocol.display_name),
-                         self.protocol.buff_type.pack_varint(0),
-                         self.protocol.buff_type.pack_varint(1),
-                         self.protocol.buff_type.pack_varint(1),
-                         self.protocol.buff_type.pack_varint(0))
+                                  self.protocol.buff_type.pack_varint(0),
+                                  self.protocol.buff_type.pack_varint(1),
+                                  self.protocol.buff_type.pack_uuid(self.protocol.uuid),
+                                  self.protocol.buff_type.pack_string(self.protocol.display_name),
+                                  self.protocol.buff_type.pack_varint(0),
+                                  self.protocol.buff_type.pack_varint(1),
+                                  self.protocol.buff_type.pack_varint(1),
+                                  self.protocol.buff_type.pack_varint(0))
 
     def send_commands(self):
         commands = {

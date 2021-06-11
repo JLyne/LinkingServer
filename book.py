@@ -1,5 +1,6 @@
 from quarry.types.nbt import TagString, TagList, TagCompound, TagRoot, TagInt
 
+
 def unlinked_book(token, bedrock=False):
     book_pages = []
 
@@ -9,7 +10,7 @@ def unlinked_book(token, bedrock=False):
         for page in pages:
             book_pages.append(TagString(page.replace("[token]", token)))
 
-    else :
+    else:
         from books.unlinked import pages
 
         for page in pages:
@@ -25,6 +26,7 @@ def unlinked_book(token, bedrock=False):
             })
     })
 
+
 def unverified_book(token, bedrock=False):
     book_pages = []
 
@@ -34,7 +36,7 @@ def unverified_book(token, bedrock=False):
         for page in pages:
             book_pages.append(TagString(page.replace("[token]", token)))
 
-    else :
+    else:
         from books.unverified import pages
 
         for page in pages:

@@ -14,6 +14,7 @@ from prometheus import set_players_online, init_prometheus
 
 linking_secret = None
 
+
 class Protocol(ServerProtocol):
     def __init__(self, factory, remote_addr):
         from versions import Version_1_15, Version_1_16, Version_1_16_2, Version_1_17
@@ -25,10 +26,10 @@ class Protocol(ServerProtocol):
         self.is_bedrock = False
         self.version = None
         self.versions = {
-            578 : Version_1_15,
-            736 : Version_1_16,
-            751 : Version_1_16_2,
-            755 : Version_1_17
+            578: Version_1_15,
+            736: Version_1_16,
+            751: Version_1_16_2,
+            755: Version_1_17
         }
 
         super(Protocol, self).__init__(factory, remote_addr)
@@ -44,7 +45,8 @@ class Protocol(ServerProtocol):
         split_host = str.split(p_connect_host, "\00")
 
         if len(split_host) >= 3:
-            #TODO: Should probably verify the encrypted data in some way. Not important until something on this server uses uuids
+            # TODO: Should probably verify the encrypted data in some way.
+            # Not important until something on this server uses uuids
             if split_host[1] == 'Geyser-Floodgate':
                 self.is_bedrock = True
 
@@ -114,7 +116,6 @@ class Protocol(ServerProtocol):
         if channel != "proxydiscord:status":
             return
 
-    #    try:
         payload = json.loads(data.decode(encoding="utf-8"))
         payload_hmac = payload.get("hmac")
 
@@ -127,9 +128,6 @@ class Protocol(ServerProtocol):
             return
 
         self.version.status_received(payload)
-      #except:
-      #    self.logger.warn("Exception handling plugin message for {}".format(self.display_name))
-      #    return
 
 
 if __name__ == "__main__":
