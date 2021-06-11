@@ -9,9 +9,6 @@ class Version_1_16(Version_1_15):
         super(Version_1_16, self).__init__(protocol, bedrock)
         self.version_name = '1.16'
 
-    def get_written_book_id(self):
-        return 825
-
     def send_join_game(self):
         codec = TagRoot({
             '': TagCompound({
@@ -47,3 +44,6 @@ class Version_1_16(Version_1_15):
                                   self.protocol.buff_type.pack("????", False, True, False, False))
 
         self.protocol.send_packet("time_update", self.protocol.buff_type.pack("qq", 1, -18000))
+
+    def get_written_book_id(self):
+        return 825

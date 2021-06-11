@@ -107,7 +107,7 @@ class Protocol(ServerProtocol):
         buff.discard()
 
         if self.version.is_bedrock:
-            self.version.send_book()
+            self.version.give_book()
 
     def packet_plugin_message(self, buff):
         channel = buff.unpack_string()

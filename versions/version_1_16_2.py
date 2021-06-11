@@ -23,9 +23,6 @@ class Version_1_16_2(Version_1_16):
 
         self.biomes = NBTFile(TagRoot({})).load('biomes.nbt')
 
-    def get_written_book_id(self):
-        return 826
-
     def get_dimension_settings(self):
         return {
             'piglin_safe': TagByte(0),
@@ -70,6 +67,19 @@ class Version_1_16_2(Version_1_16):
                                   self.protocol.buff_type.pack_varint(32),
                                   self.protocol.buff_type.pack("????", False, True, False, False))
 
+    def send_respawn(self):
+        self.protocol.send_packet("respawn",
+                                  self.protocol.buff_type.pack_nbt(self.current_dimension),
+                                  self.protocol.buff_type.pack_string("rtgame:reset"),
+                                  self.protocol.buff_type.pack("qBB", 0, 1, 1),
+                                  self.protocol.buff_type.pack("???", False, False, True))
+
+        self.protocol.send_packet("respawn",
+                                  self.protocol.buff_type.pack_nbt(self.current_dimension),
+                                  self.protocol.buff_type.pack_string("rtgame:linking"),
+                                  self.protocol.buff_type.pack("qBB", 0, 1, 1),
+                                  self.protocol.buff_type.pack("???", False, False, True))
+
     def send_world(self):
         data = [
             self.protocol.buff_type.pack_varint(0),
@@ -90,18 +100,5 @@ class Version_1_16_2(Version_1_16):
 
             self.protocol.ticker.add_loop(100, self.send_time)
 
-    def send_time(self):
-        self.protocol.send_packet("time_update", self.protocol.buff_type.pack("ll", 0, -18000))
-
-    def send_respawn(self):
-        self.protocol.send_packet("respawn",
-                                  self.protocol.buff_type.pack_nbt(self.current_dimension),
-                                  self.protocol.buff_type.pack_string("rtgame:reset"),
-                                  self.protocol.buff_type.pack("qBB", 0, 1, 1),
-                                  self.protocol.buff_type.pack("???", False, False, True))
-
-        self.protocol.send_packet("respawn",
-                                  self.protocol.buff_type.pack_nbt(self.current_dimension),
-                                  self.protocol.buff_type.pack_string("rtgame:linking"),
-                                  self.protocol.buff_type.pack("qBB", 0, 1, 1),
-                                  self.protocol.buff_type.pack("???", False, False, True))
+    def get_written_book_id(self):
+        return 826
