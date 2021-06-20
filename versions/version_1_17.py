@@ -1,5 +1,6 @@
 import json
 
+from quarry.types.chunk import PackedArray
 from quarry.types.nbt import TagInt, TagRoot, TagCompound, TagLongArray
 
 from versions import Version_1_16_2
