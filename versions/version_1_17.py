@@ -1,6 +1,6 @@
 import json
 
-from quarry.types.nbt import TagInt
+from quarry.types.nbt import TagInt, TagRoot, TagCompound, TagLongArray
 
 from versions import Version_1_16_2
 from linkingserver import Protocol
@@ -33,3 +33,24 @@ class Version_1_17(Version_1_16_2):
 
     def get_written_book_id(self):
         return 943
+
+    def send_reset_world(self):
+        data = [
+            self.protocol.buff_type.pack_varint(0),
+            b'',
+            self.protocol.buff_type.pack_nbt(
+                TagRoot({'': TagCompound({"MOTION_BLOCKING": TagLongArray(PackedArray.empty_height())})})),
+            self.protocol.buff_type.pack_varint(1024),
+        ]
+
+        for i in range(1024):
+            data.append(self.protocol.buff_type.pack_varint(127))
+
+        data.append(self.protocol.buff_type.pack_varint(0))
+        data.append(b'')
+        data.append(self.protocol.buff_type.pack_varint(0))
+        data.append(b'')
+
+        for x in range(-8, 8):
+            for y in range(-8, 8):
+                self.protocol.send_packet("chunk_data", self.protocol.buff_type.pack("ii", x, y), *data)
