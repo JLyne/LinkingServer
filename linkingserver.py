@@ -10,9 +10,14 @@ from quarry.net.server import ServerFactory, ServerProtocol
 
 from quarry.types.uuid import UUID
 
+import config
 from prometheus import set_players_online, init_prometheus
 
 linking_secret = None
+
+logging.basicConfig(filename="linkingserver.log")
+stderrLogger = logging.StreamHandler()
+stderrLogger.setFormatter(logging.Formatter(logging.BASIC_FORMAT))
 
 
 class Protocol(ServerProtocol):
@@ -136,7 +141,6 @@ if __name__ == "__main__":
     parser.add_argument("-p", "--port", default=25567, type=int, help="bind port")
     parser.add_argument("-m", "--max", default=65535, type=int, help="player count")
     parser.add_argument("-r", "--metrics", default=None, type=int, help="expose prometheus metrics on specified port")
-    parser.add_argument("-s", "--secret", type=str, help="Shared secret for linking HMAC")
 
     args = parser.parse_args()
 
@@ -148,14 +152,13 @@ if __name__ == "__main__":
     server_factory.compression_threshold = 5646848
 
     metrics_port = args.metrics
-    linking_secret = args.secret
-
-    if linking_secret is None:
-        logging.getLogger('main').error("You must provide a linking secret (-s). Exiting.")
-        exit(1)
 
     if metrics_port is not None:
         init_prometheus(metrics_port)
+
+    config = config.load_config()
+
+    linking_secret = config['secret']
 
     server_factory.listen(args.host, args.port)
     print('Server started')

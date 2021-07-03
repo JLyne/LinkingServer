@@ -1,0 +1,74 @@
+# Shared secret for linking HMAC
+# Must match linking-secret in ProxyDiscord's config.yml
+secret: ''
+
+books:
+  # This book will be shown to users who have not linked their Discord account
+  unlinked:
+    # Book title
+    title: 'Linking Instructions'
+
+    # Book author
+    author: 'NotKatuen'
+
+    # Book contents
+    # This should be a list of JSON components, each containing one page of the book
+    # Tools such as https://minecraft.tools/en/book.php can be used for creating the necessary components (copy the "pages" array from the generated command).
+    #
+    # Minecraft's character and line limits are not enforced here, so some experimentation will be required
+    # Single quotes in the string will need escaped as double single quotes (i.e You\'ll needs to be You\''l)
+    # All the usual chat features like colours, click and hover events etc are supported here
+    pages: [
+      '["",{"text":"This is the first page of the linking book.","bold":true,"underlined":true},{"text":"\n\nThis is a good place to tell the user that they need to link their Discord account in order to play, and that they should read the rest of the book for instructions on how to do that.","color":"reset"}]',
+      '["",{"text":"You might want to have some pages that explain the steps the user needs to take, such as joining your discord server.\n\nClick events for "},{"text":"[opening URLs]","color":"blue","clickEvent":{"action":"open_url","value":"https://www.google.com/"},"hoverEvent":{"action":"show_text","contents":"Clicking here will open a URL in your browser"}},{"text":" or ","color":"reset"},{"text":"[copying to the clipboard]","color":"blue","clickEvent":{"action":"copy_to_clipboard","value":"This is some text that has been copied to the clipboard"},"hoverEvent":{"action":"show_text","contents":"Clicking here will copy some text to your clipboard"}},{"text":" are supported here which are helpful for links.","color":"reset"}]',
+      '["",{"text":"You\''ll need to include the user\''s linking token in the book, so the user can link their account.\n\nAny occurances of "},{"text":"[","bold":true,"color":"red"},{"text":"token","color":"red"},{"text":"]","bold":true,"color":"red"},{"text":" in the book text will be replaced with the user''s linking token. See the next page for an example.","color":"reset"}]',
+      '["",{"text":"In order to link your accounts, please send the below command in the "},{"text":"#minecraft_linking","underlined":true,"color":"blue"},{"text":" Discord channel.\n\n","color":"reset"},{"text":"!link [token]","color":"red","clickEvent":{"action":"copy_to_clipboard","value":"!link [token]"},"hoverEvent":{"action":"show_text","contents":"Click to copy the !link command to your clipboard"}},{"text":" ","color":"reset"},{"text":"[Copy]","bold":true,"color":"blue","clickEvent":{"action":"copy_to_clipboard","value":"!link [token]"},"hoverEvent":{"action":"show_text","contents":"Click to copy the !link text to your clipboard"}},{"text":"\n\nYou will then be able to play on the server, if  you have one of the required Discord roles.","color":"reset"}]']
+
+    # Book contents used instead of the above, if the user is on a bedrock client.
+    # Bedrock clients do not support click or hover events at this time, so you'll likely want alternative book text
+    # designed with that limitation in mind.
+    #
+    # This should be a list of JSON components, each containing one page of the book
+    # Tools such as https://minecraft.tools/en/book.php can be used for creating the necessary components (copy the "pages" array from the generated command).
+    #
+    # Minecraft's character and line limits are not enforced here, so some experimentation will be required
+    # Single quotes in the string will need escaped as double single quotes (i.e You\'ll needs to be You\''l)
+    bedrock_pages: [
+      '["",{"text":"This is the first page of the linking book.","bold":true,"underlined":true},{"text":"\n\nThis is a good place to tell the user that they need to link their Discord account in order to play, and that they should read the rest of the book for instructions on how to do that.","color":"reset"}]',
+      '{"text":"You might want to have some pages that explain the steps the user needs to take, such as joining your discord server.\n\nUnfortunately bedrock does not support click or hover events at this time."}',
+      '["",{"text":"You\''ll need to include the user\''s linking token in the book, so the user can link their account.\n\nAny occurances of "},{"text":"[","bold":true,"color":"red"},{"text":"token","color":"red"},{"text":"]","bold":true,"color":"red"},{"text":" in the book text will be replaced with the user\''s linking token. See the next page for an example.","color":"reset"}]',
+      '["",{"text":"In order to link your accounts, please send the below command in the "},{"text":"#minecraft_linking","underlined":true,"color":"blue"},{"text":" Discord channel.\n\n","color":"reset"},{"text":"!link [token]","color":"red"},{"text":" \n\nYou will then be able to play on the server, if \\u0020you have one of the required Discord roles.","color":"reset"}]']
+
+  # This book will be shown to users who have linked their Discord account, but do not have any of the roles required for joining a non-public server
+  unverified:
+    # Book title
+    title: 'Linking Instructions'
+
+    # Book author
+    author: 'NotKatuen'
+
+    # Book contents
+    # This should be a list of JSON components, each containing one page of the book
+    # Tools such as https://minecraft.tools/en/book.php can be used for creating the necessary components (copy the "pages" array from the generated command).
+    #
+    # Minecraft's character and line limits are not enforced here, so some experimentation will be required
+    # Single quotes in the string will need escaped as double single quotes (i.e You\'ll needs to be You\''l)
+    # All the usual chat features like colours, click and hover events etc are supported here
+    pages: [
+        '["",{"text":"This is the first page of the unverified book.","bold":true,"underlined":true},{"text":"\n\nThis book is shown if the user has linked their discord account but does not have any of the required roles.\n\nYou should tell the user about the things they can do to fix this problem.","color":"reset"}]',
+        '{"text":"For example, they may have left your discord server and therefore need to rejoin it.\n\nOr their twitch subscription has expired and they need to renew it.\n\nAs before click and hover events are supported."}',
+        '{"text":"The linking token is not required for this book as the user is already linked."}']
+
+    # Book contents used instead of the above, if the user is on a bedrock client.
+    # Bedrock clients do not support click or hover events at this time, so you'll likely want alternative book text
+    # designed with that limitation in mind.
+    #
+    # This should be a list of JSON components, each containing one page of the book
+    # Tools such as https://minecraft.tools/en/book.php can be used for creating the necessary components (copy the "pages" array from the generated command).
+    #
+    # Minecraft's character and line limits are not enforced here, so some experimentation will be required
+    # Single quotes in the string will need escaped as double single quotes (i.e You\'ll needs to be You\''l)
+    bedrock_pages: [
+        '["",{"text":"This is the first page of the unverified book.","bold":true,"underlined":true},{"text":"\n\nThis book is shown if the user has linked their discord account but does not have any of the required roles.\n\nYou should tell the user about the things they can do to fix this problem.","color":"reset"}]',
+        '{"text":"For example, they may have left your discord server and therefore need to rejoin it.\n\nOr their twitch subscription has expired and they need to renew it."}',
+        '{"text":"The linking token is not required for this book as the user is already linked."}']

@@ -1,6 +1,6 @@
 import abc
 
-import book
+from config import books
 from linkingserver import Protocol
 
 
@@ -60,10 +60,11 @@ class Version(object, metaclass=abc.ABCMeta):
             self.send_time()
 
     def give_book(self):
+        print(self.linking_status)
         if self.linking_status == 1:
-            nbt = book.unlinked_book(self.linking_token, self.is_bedrock)
+            nbt = books['unlinked'].nbt(self.linking_token, self.is_bedrock)
         elif self.linking_status == 2:
-            nbt = book.unverified_book(self.linking_token, self.is_bedrock)
+            nbt = books['unverified'].nbt(self.linking_token, self.is_bedrock)
         else:
             return
 

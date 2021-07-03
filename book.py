@@ -1,53 +1,30 @@
 from quarry.types.nbt import TagString, TagList, TagCompound, TagRoot, TagInt
 
 
-def unlinked_book(token, bedrock=False):
-    book_pages = []
+class Book:
 
-    if bedrock:
-        from books.unlinked_bedrock import pages
+    def __init__(self, title: str, author: list, pages: list, bedrock_pages: list):
+        self.title = title
+        self.author = author
+        self.pages = pages
+        self.bedrock_pages = bedrock_pages
 
-        for page in pages:
-            book_pages.append(TagString(page.replace("[token]", token)))
+    def nbt(self, token: str, bedrock: bool):
+        pages = []
 
-    else:
-        from books.unlinked import pages
+        if bedrock:
+            for page in self.pages:
+                pages.append(TagString(page.replace("[token]", token)))
+        else:
+            for page in self.pages:
+                pages.append(TagString(page.replace("[token]", token)))
 
-        for page in pages:
-            book_pages.append(TagString(page.replace("[token]", token)))
-
-    return TagRoot({
+        return TagRoot({
             '': TagCompound({
                 'resolved': TagInt(1),
                 'generation': TagInt(2),
-                'author': TagString("NotKatuen"),
-                'title': TagString("Linking Instructions"),
-                'pages': TagList(book_pages)
+                'author': TagString(self.author),
+                'title': TagString(self.title),
+                'pages': TagList(pages)
             })
-    })
-
-
-def unverified_book(token, bedrock=False):
-    book_pages = []
-
-    if bedrock:
-        from books.unverified_bedrock import pages
-
-        for page in pages:
-            book_pages.append(TagString(page.replace("[token]", token)))
-
-    else:
-        from books.unverified import pages
-
-        for page in pages:
-            book_pages.append(TagString(page.replace("[token]", token)))
-
-    return TagRoot({
-            '': TagCompound({
-                'resolved': TagInt(1),
-                'generation': TagInt(2),
-                'author': TagString("NotKatuen"),
-                'title': TagString("Role Missing"),
-                'pages': TagList(book_pages)
-            })
-    })
+        })
