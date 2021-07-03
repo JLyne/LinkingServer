@@ -1,7 +1,7 @@
 from quarry.types.nbt import TagList, TagCompound, TagRoot, TagString, TagByte, TagFloat, TagInt, NBTFile
 
-from versions import Version_1_16
-from linkingserver import Protocol
+from src.versions import Version_1_16
+from src.linkingserver import Protocol
 
 
 class Version_1_16_2(Version_1_16):

@@ -3,8 +3,8 @@ import json
 from quarry.types.chunk import PackedArray
 from quarry.types.nbt import TagInt, TagRoot, TagCompound, TagLongArray
 
-from versions import Version_1_16_2
-from linkingserver import Protocol
+from src.versions import Version_1_16_2
+from src.linkingserver import Protocol
 
 
 class Version_1_17(Version_1_16_2):

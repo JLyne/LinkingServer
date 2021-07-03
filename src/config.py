@@ -15,7 +15,7 @@ books = {}
 
 
 def load_config():
-    with open(r'config.yml') as file:
+    with open(r'../config.yml') as file:
         config = yaml.load(file, Loader=SafeLoader)
         book_config = config.get('books', {})
 

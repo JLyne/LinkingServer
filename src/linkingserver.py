@@ -15,7 +15,7 @@ from prometheus import set_players_online, init_prometheus
 
 linking_secret = None
 
-logging.basicConfig(filename="linkingserver.log")
+logging.basicConfig(filename="../linkingserver.log")
 stderrLogger = logging.StreamHandler()
 stderrLogger.setFormatter(logging.Formatter(logging.BASIC_FORMAT))
 
