@@ -1,7 +1,7 @@
 import abc
 
-from src.config import books
-from src.linkingserver import Protocol
+from linkingserver.config import books
+from linkingserver.server import Protocol
 
 
 class Version(object, metaclass=abc.ABCMeta):

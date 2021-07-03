@@ -1,28 +1,31 @@
+import hmac
 import json
+import os
+import sys
+
 from argparse import ArgumentParser
 from copy import deepcopy
 
-import hmac
-
-import logging
-from twisted.internet import reactor
 from quarry.net.server import ServerFactory, ServerProtocol
-
 from quarry.types.uuid import UUID
+from twisted.internet import reactor
 
-import config
-from prometheus import set_players_online, init_prometheus
+import linkingserver.config
+from linkingserver.prometheus import set_players_online, init_prometheus
 
 linking_secret = None
 
-logging.basicConfig(filename="../linkingserver.log")
-stderrLogger = logging.StreamHandler()
-stderrLogger.setFormatter(logging.Formatter(logging.BASIC_FORMAT))
+if getattr(sys, 'frozen', False):  # PyInstaller adds this attribute
+    # Running in a bundle
+    path = os.path.join(sys._MEIPASS, 'linkingserver')
+else:
+    # Running in normal Python environment
+    path = os.path.dirname(__file__)
 
 
 class Protocol(ServerProtocol):
     def __init__(self, factory, remote_addr):
-        from versions import Version_1_15, Version_1_16, Version_1_16_2, Version_1_17
+        from linkingserver.versions import Version_1_15, Version_1_16, Version_1_16_2, Version_1_17
 
         self.uuid = UUID.from_offline_player('NotKatuen')
 
@@ -156,7 +159,7 @@ if __name__ == "__main__":
     if metrics_port is not None:
         init_prometheus(metrics_port)
 
-    config = config.load_config()
+    config = linkingserver.config.load_config()
 
     linking_secret = config['secret']
 

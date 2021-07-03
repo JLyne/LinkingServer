@@ -3,12 +3,9 @@ import logging
 import yaml
 from yaml import SafeLoader
 
-from linkingserver import stderrLogger
-
-from book import Book
+from linkingserver.book import Book
 
 logger = logging.getLogger('config')
-logger.addHandler(stderrLogger)
 logger.setLevel(logging.INFO)
 
 books = {}
