@@ -1,12 +1,7 @@
-import logging
-
 import yaml
 from yaml import SafeLoader
 
 from linkingserver.book import Book
-
-logger = logging.getLogger('config')
-logger.setLevel(logging.INFO)
 
 books = {}
 

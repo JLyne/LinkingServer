@@ -1,5 +1,6 @@
 import hmac
 import json
+import logging
 import os
 import sys
 
@@ -22,6 +23,17 @@ else:
     # Running in normal Python environment
     path = os.path.dirname(__file__)
 
+# Logging
+logger = logging.getLogger('linkingserver')
+logger.setLevel(logging.DEBUG)
+
+file_handler = logging.FileHandler(filename='linkingserver.log')
+console_handler = logging.StreamHandler(sys.stderr)
+formatter = logging.Formatter('[%(asctime)s %(levelname)s]: [%(name)s] %(message)s')
+console_handler.setFormatter(formatter)
+file_handler.setFormatter(formatter)
+logger.addHandler(console_handler)
+logger.addHandler(file_handler)
 
 class Protocol(ServerProtocol):
     def __init__(self, factory, remote_addr):
@@ -41,6 +53,9 @@ class Protocol(ServerProtocol):
         }
 
         super(Protocol, self).__init__(factory, remote_addr)
+
+        self.logger.addHandler(console_handler)
+        self.logger.addHandler(file_handler)
 
     def packet_handshake(self, buff):
         buff2 = deepcopy(buff)
@@ -132,7 +147,8 @@ class Protocol(ServerProtocol):
                                    msg=str.encode(msg, encoding="utf-8"), digestmod="sha512")
 
         if calculated_hmac.hexdigest() != payload_hmac:
-            self.logger.warn("Ignoring invalid plugin message for {}".format(self.display_name))
+            self.logger.warn("Failed to validate plugin message for {}. Is the linking secret configured correctly?"
+                             .format(self.display_name))
             return
 
         self.version.status_received(payload)
@@ -164,6 +180,6 @@ if __name__ == "__main__":
     linking_secret = config['secret']
 
     server_factory.listen(args.host, args.port)
-    print('Server started')
-    print("Listening on {}:{}".format(args.host, args.port))
+    logger.info('Server started')
+    logger.info("Listening on {}:{}".format(args.host, args.port))
     reactor.run()
