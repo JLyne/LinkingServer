@@ -12,6 +12,8 @@ datas = [
     ( 'biomes.nbt', 'linkingserver' ),
     ( 'data/0755_1.17.csv', 'quarry/data/packets' ),
     ( 'data/0755_1.17.nbt', 'quarry/data/data_packs' ),
+    ( 'data/0756_1.17.1.csv', 'quarry/data/packets' ),
+    ( 'data/0756_1.17.1.nbt', 'quarry/data/data_packs' ),
 ]
 
 datas.extend((file, dirname(file).split("site-packages")[1]) for file in glob.iglob(join(quarry_data,"**{}*.csv".format(sep)), recursive=True))
