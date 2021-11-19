@@ -23,7 +23,7 @@ class Version_1_16_2(Version_1_16):
             '': TagCompound(self.dimension_settings),
         })
 
-        self.biomes = NBTFile(TagRoot({})).load(os.path.join(path, 'biomes.nbt'))
+        self.biomes = NBTFile(TagRoot({})).load(os.path.join(path, 'biomes', '1.16.2.nbt'))
 
     def get_dimension_settings(self):
         return {
