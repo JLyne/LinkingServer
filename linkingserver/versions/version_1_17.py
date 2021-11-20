@@ -4,14 +4,15 @@ from quarry.types.buffer import Buffer
 from quarry.types.nbt import TagInt
 
 from linkingserver.versions import Version_1_16_2
-from linkingserver.server import Protocol, path
+from linkingserver.protocol import Protocol
+from linkingserver.versions.version import parent_folder
 
 
 class Version_1_17(Version_1_16_2):
     protocol_version = 755
     chunk_format = '1.17'
 
-    empty_chunk_buffer = Buffer(open(os.path.join(path, 'empty_chunk', chunk_format + '.bin'), 'rb').read())
+    empty_chunk_buffer = Buffer(open(os.path.join(parent_folder, 'empty_chunk', chunk_format + '.bin'), 'rb').read())
     empty_chunk_buffer.unpack("i")
     empty_chunk_buffer.unpack("i")
 

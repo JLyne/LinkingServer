@@ -1,7 +1,10 @@
 import abc
+from pathlib import Path
 
 from linkingserver.config import books
-from linkingserver.server import Protocol
+from linkingserver.protocol import Protocol
+
+parent_folder = Path(__file__).parent.parent
 
 
 class Version(object, metaclass=abc.ABCMeta):
