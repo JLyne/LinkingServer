@@ -1,39 +1,15 @@
 import hmac
 import json
-import logging
-import os
-import sys
 
-from argparse import ArgumentParser
 from copy import deepcopy
 
-from quarry.net.server import ServerFactory, ServerProtocol
+from quarry.net.server import ServerProtocol
 from quarry.types.uuid import UUID
-from twisted.internet import reactor
 
-import linkingserver.config
-from linkingserver.prometheus import set_players_online, init_prometheus
+from linkingserver.log import console_handler, file_handler
+from linkingserver.prometheus import set_players_online
 
 linking_secret = None
-
-if getattr(sys, 'frozen', False):  # PyInstaller adds this attribute
-    # Running in a bundle
-    path = os.path.join(sys._MEIPASS, 'linkingserver')
-else:
-    # Running in normal Python environment
-    path = os.path.dirname(__file__)
-
-# Logging
-logger = logging.getLogger('linkingserver')
-logger.setLevel(logging.DEBUG)
-
-file_handler = logging.FileHandler(filename='linkingserver.log')
-console_handler = logging.StreamHandler(sys.stderr)
-formatter = logging.Formatter('[%(asctime)s %(levelname)s]: [%(name)s] %(message)s')
-console_handler.setFormatter(formatter)
-file_handler.setFormatter(formatter)
-logger.addHandler(console_handler)
-logger.addHandler(file_handler)
 
 versions = {}
 
@@ -157,36 +133,3 @@ def build_versions():
     for version in vars(linkingserver.versions).values():
         if hasattr(version, 'protocol_version') and version.protocol_version is not None:
             versions[version.protocol_version] = version
-
-
-if __name__ == "__main__":
-    parser = ArgumentParser()
-    parser.add_argument("-a", "--host", default="127.0.0.1", help="bind address")
-    parser.add_argument("-p", "--port", default=25567, type=int, help="bind port")
-    parser.add_argument("-m", "--max", default=65535, type=int, help="player count")
-    parser.add_argument("-r", "--metrics", default=None, type=int, help="expose prometheus metrics on specified port")
-
-    args = parser.parse_args()
-
-    server_factory = ServerFactory()
-    server_factory.protocol = Protocol
-    server_factory.max_players = args.max
-    server_factory.motd = "Linking Server"
-    server_factory.online_mode = False
-    server_factory.compression_threshold = 5646848
-
-    metrics_port = args.metrics
-
-    if metrics_port is not None:
-        init_prometheus(metrics_port)
-
-    config = linkingserver.config.load_config()
-
-    linking_secret = config['secret']
-
-    build_versions()
-
-    server_factory.listen(args.host, args.port)
-    logger.info('Server started')
-    logger.info("Listening on {}:{}".format(args.host, args.port))
-    reactor.run()

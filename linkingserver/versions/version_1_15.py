@@ -4,7 +4,7 @@ from quarry.types.nbt import TagCompound, TagRoot
 
 from linkingserver.versions import Version
 
-from linkingserver.server import Protocol
+from linkingserver.protocol import Protocol
 
 
 class Version_1_15(Version):

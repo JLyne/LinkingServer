@@ -3,14 +3,15 @@ import os.path
 from quarry.types.nbt import TagList, TagCompound, TagRoot, TagString, TagByte, TagFloat, TagInt, NBTFile
 
 from linkingserver.versions import Version_1_16
-from linkingserver.server import Protocol, path
+from linkingserver.protocol import Protocol
+from linkingserver.versions.version import parent_folder
 
 
 class Version_1_16_2(Version_1_16):
     protocol_version = 751
     chunk_format = '1.16.2'
 
-    biomes = NBTFile(TagRoot({})).load(os.path.join(path, 'biomes', chunk_format + '.nbt'))
+    biomes = NBTFile(TagRoot({})).load(os.path.join(parent_folder, 'biomes', chunk_format + '.nbt'))
 
     def __init__(self, protocol: Protocol, bedrock: False):
         super(Version_1_16_2, self).__init__(protocol, bedrock)

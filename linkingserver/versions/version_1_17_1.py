@@ -1,5 +1,5 @@
 from linkingserver.versions import Version_1_17
-from linkingserver.server import Protocol
+from linkingserver.protocol import Protocol
 
 
 class Version_1_17_1(Version_1_17):
