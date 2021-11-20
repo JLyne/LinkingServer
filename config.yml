@@ -1,6 +1,6 @@
 # Shared secret for linking HMAC
 # Must match linking-secret in ProxyDiscord's config.yml
-secret: ''
+secret: ')2z#*MR^BrGVygg7'
 
 books:
   # This book will be shown to users who have not linked their Discord account

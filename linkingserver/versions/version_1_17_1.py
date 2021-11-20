@@ -3,9 +3,10 @@ from linkingserver.server import Protocol
 
 
 class Version_1_17_1(Version_1_17):
+    protocol_version = 756
+
     def __init__(self, protocol: Protocol, bedrock: False):
         super(Version_1_17, self).__init__(protocol, bedrock)
-        self.version_name = '1.17.1'
 
     def send_inventory(self):
         data = [

@@ -8,9 +8,11 @@ from linkingserver.server import Protocol
 
 
 class Version_1_15(Version):
+    protocol_version = 578
+    chunk_format = '1.15'
+
     def __init__(self, protocol: Protocol, bedrock: False):
         super(Version_1_15, self).__init__(protocol, bedrock)
-        self.version_name = '1.15'
 
         self.commands = {
             "name": None,

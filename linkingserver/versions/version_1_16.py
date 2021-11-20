@@ -5,9 +5,10 @@ from linkingserver.server import Protocol
 
 
 class Version_1_16(Version_1_15):
+    protocol_version = 736
+
     def __init__(self, protocol: Protocol, bedrock: False):
         super(Version_1_16, self).__init__(protocol, bedrock)
-        self.version_name = '1.16'
 
     def send_join_game(self):
         codec = TagRoot({

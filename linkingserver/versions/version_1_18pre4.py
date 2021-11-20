@@ -1,18 +1,26 @@
 import os
 
-from quarry.types.chunk import PackedArray
-from quarry.types.nbt import TagCompound, TagRoot, TagString, TagList, TagLongArray, NBTFile, TagInt
+from quarry.types.buffer import Buffer
+from quarry.types.nbt import TagCompound, TagRoot, TagString, TagList, NBTFile, TagInt
 
 from linkingserver.versions import Version_1_17_1
 from linkingserver.server import Protocol, path
 
 
 class Version_1_18pre4(Version_1_17_1):
+    protocol_version = 1073741876
+    chunk_format = '1.18pre4'
+
+    biomes = NBTFile(TagRoot({})).load(os.path.join(path, 'biomes', chunk_format + '.nbt'))
+
+    empty_chunk_buffer = Buffer(open(os.path.join(path, 'empty_chunk', chunk_format + '.bin'), 'rb').read())
+    empty_chunk_buffer.unpack("i")
+    empty_chunk_buffer.unpack("i")
+
+    empty_chunk = empty_chunk_buffer.read()
+
     def __init__(self, protocol: Protocol, bedrock: False):
         super(Version_1_18pre4, self).__init__(protocol, bedrock)
-        self.version_name = '1.18pre4'
-
-        self.biomes = NBTFile(TagRoot({})).load(os.path.join(path, 'biomes', '1.18pre4.nbt'))
 
     def get_dimension_settings(self):
         settings = super().get_dimension_settings()
@@ -53,20 +61,3 @@ class Version_1_18pre4(Version_1_17_1):
                                   self.protocol.buff_type.pack_varint(0),
                                   self.protocol.buff_type.pack("????", False, True, False, False))
 
-    def send_reset_world(self):
-        data = [
-            self.protocol.buff_type.pack_nbt(
-                TagRoot({'': TagCompound({"MOTION_BLOCKING": TagLongArray(PackedArray.empty_height())})})),
-            self.protocol.buff_type.pack_varint(1541),
-            self.protocol.buff_type.pack("qB", 0, 0)
-        ]
-
-        data.append(b'')
-        self.protocol.buff_type.pack_varint(0)
-        data.append(b'')
-        self.protocol.buff_type.pack_varint(0)
-        data.append(b'')
-
-        for x in range(-8, 8):
-            for y in range(-8, 8):
-                self.protocol.send_packet("chunk_data", self.protocol.buff_type.pack("ii", x, y), *data)

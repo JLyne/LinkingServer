@@ -1,16 +1,24 @@
-import json
+import os
 
-from quarry.types.chunk import PackedArray
-from quarry.types.nbt import TagInt, TagRoot, TagCompound, TagLongArray
+from quarry.types.buffer import Buffer
+from quarry.types.nbt import TagInt
 
 from linkingserver.versions import Version_1_16_2
-from linkingserver.server import Protocol
+from linkingserver.server import Protocol, path
 
 
 class Version_1_17(Version_1_16_2):
+    protocol_version = 755
+    chunk_format = '1.17'
+
+    empty_chunk_buffer = Buffer(open(os.path.join(path, 'empty_chunk', chunk_format + '.bin'), 'rb').read())
+    empty_chunk_buffer.unpack("i")
+    empty_chunk_buffer.unpack("i")
+
+    empty_chunk = empty_chunk_buffer.read()
+
     def __init__(self, protocol: Protocol, bedrock: False):
         super(Version_1_17, self).__init__(protocol, bedrock)
-        self.version_name = '1.17'
 
     def get_dimension_settings(self):
         settings = super().get_dimension_settings()
@@ -36,22 +44,6 @@ class Version_1_17(Version_1_16_2):
         return 943
 
     def send_reset_world(self):
-        data = [
-            self.protocol.buff_type.pack_varint(0),
-            b'',
-            self.protocol.buff_type.pack_nbt(
-                TagRoot({'': TagCompound({"MOTION_BLOCKING": TagLongArray(PackedArray.empty_height())})})),
-            self.protocol.buff_type.pack_varint(1024),
-        ]
-
-        for i in range(1024):
-            data.append(self.protocol.buff_type.pack_varint(127))
-
-        data.append(self.protocol.buff_type.pack_varint(0))
-        data.append(b'')
-        data.append(self.protocol.buff_type.pack_varint(0))
-        data.append(b'')
-
         for x in range(-8, 8):
             for y in range(-8, 8):
-                self.protocol.send_packet("chunk_data", self.protocol.buff_type.pack("ii", x, y), *data)
+                self.protocol.send_packet("chunk_data", self.protocol.buff_type.pack("ii", x, y), *self.empty_chunk)

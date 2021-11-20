@@ -5,10 +5,12 @@ from linkingserver.server import Protocol
 
 
 class Version(object, metaclass=abc.ABCMeta):
+    protocol_version = None
+    chunk_format = None
+
     def __init__(self, protocol: Protocol, bedrock: False):
         self.protocol = protocol
 
-        self.version_name = None
         self.status_packet_received = False
 
         self.linking_status = None

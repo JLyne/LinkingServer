@@ -7,9 +7,13 @@ from linkingserver.server import Protocol, path
 
 
 class Version_1_16_2(Version_1_16):
+    protocol_version = 751
+    chunk_format = '1.16.2'
+
+    biomes = NBTFile(TagRoot({})).load(os.path.join(path, 'biomes', chunk_format + '.nbt'))
+
     def __init__(self, protocol: Protocol, bedrock: False):
         super(Version_1_16_2, self).__init__(protocol, bedrock)
-        self.version_name = '1.16.2'
 
         self.dimension_settings = self.get_dimension_settings()
 
@@ -22,8 +26,6 @@ class Version_1_16_2(Version_1_16):
         self.current_dimension = TagRoot({
             '': TagCompound(self.dimension_settings),
         })
-
-        self.biomes = NBTFile(TagRoot({})).load(os.path.join(path, 'biomes', '1.16.2.nbt'))
 
     def get_dimension_settings(self):
         return {
