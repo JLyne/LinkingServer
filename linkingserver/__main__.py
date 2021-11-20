@@ -38,8 +38,7 @@ if metrics_port is not None:
     init_prometheus(metrics_port)
 
 config = load_config()
-
-linking_secret = config['secret']
+Protocol.linking_secret = config['secret']
 
 build_versions()
 

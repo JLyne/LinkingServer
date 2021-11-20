@@ -9,11 +9,11 @@ from quarry.types.uuid import UUID
 from linkingserver.log import console_handler, file_handler
 from linkingserver.prometheus import set_players_online
 
-linking_secret = None
-
 versions = {}
 
 class Protocol(ServerProtocol):
+    linking_secret = None
+
     def __init__(self, factory, remote_addr):
         self.uuid = UUID.from_offline_player('NotKatuen')
 
@@ -114,7 +114,7 @@ class Protocol(ServerProtocol):
         payload_hmac = payload.get("hmac")
 
         msg = "{0:d}{1:d}{2:s}".format(payload.get("status"), payload.get("bedrock"), payload.get("token"))
-        calculated_hmac = hmac.new(key=str.encode(linking_secret, encoding="utf-8"),
+        calculated_hmac = hmac.new(key=str.encode(self.linking_secret, encoding="utf-8"),
                                    msg=str.encode(msg, encoding="utf-8"), digestmod="sha512")
 
         if calculated_hmac.hexdigest() != payload_hmac:
