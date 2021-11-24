@@ -11,8 +11,8 @@ quarry_data = os.path.join(split(quarry.__file__)[0], 'data')
 datas = [
     ( 'biomes/*.nbt', 'linkingserver/biomes' ),
     ( 'empty_chunk/*.bin', 'linkingserver/empty_chunk' ),
-    ( 'data/1073741876_1.18pre4.csv', 'quarry/data/packets' ),
-    ( 'data/1073741876_1.18pre4.nbt', 'quarry/data/data_packs' ),
+    ( 'data/0757_1.18.csv', 'quarry/data/packets' ),
+    ( 'data/0757_1.18.nbt', 'quarry/data/data_packs' ),
 ]
 datas.extend((file, dirname(file).split("site-packages")[1]) for file in glob.iglob(join(quarry_data,"**{}*.csv".format(sep)), recursive=True))
 datas.extend((file, dirname(file).split("site-packages")[1]) for file in glob.iglob(join(quarry_data,"**{}*.nbt".format(sep)), recursive=True))
