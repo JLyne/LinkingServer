@@ -1,28 +1,29 @@
 import hmac
 import json
+import random
 
 from copy import deepcopy
 
 from quarry.net.server import ServerProtocol
 from quarry.types.uuid import UUID
 
-from linkingserver.log import console_handler, file_handler
+from linkingserver.log import console_handler, file_handler, logger
 from linkingserver.prometheus import set_players_online
 
 versions = {}
 
 class Protocol(ServerProtocol):
     linking_secret = None
+    bungee_forwarding = False
+    velocity_forwarding = False
+    velocity_forwarding_secret = None
 
     def __init__(self, factory, remote_addr):
-        self.uuid = UUID.from_offline_player('NotKatuen')
+        super(Protocol, self).__init__(factory, remote_addr)
 
-        self.forwarded_uuid = None
-        self.forwarded_host = None
+        self.velocity_message_id = None
         self.is_bedrock = False
         self.version = None
-
-        super(Protocol, self).__init__(factory, remote_addr)
 
         self.logger.addHandler(console_handler)
         self.logger.addHandler(file_handler)
@@ -34,10 +35,15 @@ class Protocol(ServerProtocol):
         buff2.unpack_varint()
         p_connect_host = buff2.unpack_string()
 
-        # Bungeecord ip forwarding, ip/uuid is included in host string separated by \00s
-        split_host = str.split(p_connect_host, "\00")
+        if self.bungee_forwarding is True:
+            # Bungeecord ip forwarding, ip/uuid is included in host string separated by \00s
+            split_host = str.split(p_connect_host, "\00")
 
-        if len(split_host) >= 3:
+            if len(split_host) < 3:
+                logger.warning("Invalid bungeecord forwarding data received from {}".format(self.remote_addr))
+                self.close("Invalid bungeecord forwarding data")
+                return
+
             # TODO: Should probably verify the encrypted data in some way.
             # Not important until something on this server uses uuids
             if split_host[1] == 'Geyser-Floodgate':
@@ -54,8 +60,10 @@ class Protocol(ServerProtocol):
                 host = split_host[1]
                 online_uuid = split_host[2]
 
-            self.forwarded_host = host
-            self.forwarded_uuid = UUID.from_hex(online_uuid)
+            self.connect_host = host
+            self.uuid = UUID.from_hex(online_uuid)
+
+            logger.info("Bungeecord: {}".format(self.uuid))
 
         version = None
 
@@ -69,14 +77,80 @@ class Protocol(ServerProtocol):
         else:
             self.close("Unsupported Minecraft Version")
 
-    def player_joined(self):
-        # Overwrite with forwarded information if present
-        if self.forwarded_uuid is not None:
-            self.uuid = self.forwarded_uuid
-            self.display_name_confirmed = True
+    def packet_login_start(self, buff):
+        if self.login_expecting != 0:
+            logger.warning("Unexpected login_start received from {}".format(self.remote_addr))
+            self.close("Out-of-order login")
+            return
 
-        if self.forwarded_host is not None:
-            self.connect_host = self.forwarded_host
+        if self.velocity_forwarding is True:
+            self.login_expecting = 2
+            self.velocity_message_id = random.randint(0, 2147483647)
+            self.send_packet("login_plugin_request",
+                             self.buff_type.pack_varint(self.velocity_message_id),
+                             self.buff_type.pack_string("velocity:player_info"),
+                             b'')
+            buff.read()
+            return
+
+        self.login_expecting = None
+        self.display_name_confirmed = True
+        self.display_name = buff.unpack_string()
+        self.player_joined()
+
+    def packet_login_plugin_response(self, buff):
+        if self.login_expecting != 2 or self.protocol_mode != "login":
+            logger.warning("Unexpected login_plugin_response received from {}".format(self.remote_addr))
+            self.close("Out-of-order login")
+            return
+
+        message_id = buff.unpack_varint()
+        successful = buff.unpack('b')
+
+        if message_id != self.velocity_message_id:
+            logger.warning("Unexpected login_plugin_response received from {}".format(self.remote_addr))
+            self.close("Unexpected login_plugin_response")
+            return
+
+        if not successful or len(buff) == 0:
+            logger.warning("Empty velocity forwarding response received from {}".format(self.remote_addr))
+            self.close("Empty velocity forwarding response")
+            return
+
+        # Verify HMAC
+        signature = buff.read(32)
+        verify = hmac.new(key=str.encode(self.velocity_forwarding_secret), msg=deepcopy(buff).read(),
+                          digestmod="sha256").digest()
+
+        if verify != signature:
+            logger.warning("Invalid velocity forwarding response received from {}".format(self.remote_addr))
+            self.close("Invalid velocity forwarding response received")
+            buff.read()
+            return
+
+        version = buff.unpack_varint()
+
+        if version != 1:
+            logger.warning("Unsupported velocity forwarding version received from {}".format(self.remote_addr))
+            self.close("Unsupported velocity forwarding version")
+            buff.read()
+            return
+
+        buff.unpack_string()  # Ip
+
+        self.uuid = buff.unpack_uuid()
+        self.display_name = buff.unpack_string()
+
+        buff.read()  # Don't care about the rest
+
+        self.login_expecting = None
+        self.display_name_confirmed = True
+        logger.info("Velocity: {} {}".format(self.display_name, self.uuid))
+        self.player_joined()
+
+    def player_joined(self):
+        if self.uuid is None:
+            self.uuid = UUID.from_offline_player(self.display_name)
 
         super().player_joined()
 

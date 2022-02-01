@@ -3,6 +3,9 @@
   <component name="NewModuleRootManager">
     <content url="file://$MODULE_DIR$">
       <excludeFolder url="file://$MODULE_DIR$/venv" />
+      <excludeFolder url="file://$MODULE_DIR$/linkingserver/build" />
+      <excludeFolder url="file://$MODULE_DIR$/linkingserver/dist" />
+      <excludeFolder url="file://$MODULE_DIR$/venv-linux" />
     </content>
     <orderEntry type="jdk" jdkName="3.8 @ Ubuntu (2)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
