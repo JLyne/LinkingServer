@@ -13,6 +13,8 @@ datas = [
     ( 'empty_chunk/*.bin', 'linkingserver/empty_chunk' ),
     ( 'data/0757_1.18.csv', 'quarry/data/packets' ),
     ( 'data/0757_1.18.nbt', 'quarry/data/data_packs' ),
+    ( 'data/0758_1.18.2.csv', 'quarry/data/packets' ),
+    ( 'data/0758_1.18.2.nbt', 'quarry/data/data_packs' ),
 ]
 datas.extend((file, dirname(file).split("site-packages")[1]) for file in glob.iglob(join(quarry_data,"**{}*.csv".format(sep)), recursive=True))
 datas.extend((file, dirname(file).split("site-packages")[1]) for file in glob.iglob(join(quarry_data,"**{}*.nbt".format(sep)), recursive=True))
