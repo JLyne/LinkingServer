@@ -12,6 +12,7 @@ from linkingserver.prometheus import set_players_online
 
 versions = {}
 
+
 class Protocol(ServerProtocol):
     linking_secret = None
     bungee_forwarding = False

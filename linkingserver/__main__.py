@@ -23,7 +23,8 @@ parser.add_argument("-p", "--port", default=25567, type=int, help="bind port")
 parser.add_argument("-m", "--max", default=65535, type=int, help="player count")
 parser.add_argument("-r", "--metrics", default=None, type=int, help="expose prometheus metrics on specified port")
 parser.add_argument("-b", "--bungeecord", action='store_true', help="Enables bungeecord forwarding support")
-parser.add_argument("-v", "--velocity", default=None, type=str, help="enable velocity modern forwarding support with the given secret")
+parser.add_argument("-v", "--velocity", default=None, type=str,
+                    help="enable velocity modern forwarding support with the given secret")
 
 args = parser.parse_args()
 

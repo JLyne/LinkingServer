@@ -26,14 +26,14 @@ def load_config():
             raise TypeError("Unverified book is missing from config")
 
         books['unlinked'] = Book(unlinked.get('title', ''),
-                              unlinked.get('author', ''),
-                              unlinked.get('pages', []),
-                              unlinked.get('bedrock_pages', []))
+                                 unlinked.get('author', ''),
+                                 unlinked.get('pages', []),
+                                 unlinked.get('bedrock_pages', []))
 
         books['unverified'] = Book(unverified.get('title', ''),
-                                unverified.get('author', ''),
-                                unverified.get('pages', []),
-                                unverified.get('bedrock_pages', []))
+                                   unverified.get('author', ''),
+                                   unverified.get('pages', []),
+                                   unverified.get('bedrock_pages', []))
 
         return {
             'books': books,
