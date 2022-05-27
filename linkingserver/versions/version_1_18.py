@@ -7,7 +7,6 @@ from linkingserver.protocol import Protocol
 class Version_1_18(Version_1_17_1):
     protocol_version = 757
     chunk_format = '1.18'
-    biomes_format = '1.18'
 
     def __init__(self, protocol: Protocol, bedrock: False):
         super(Version_1_18, self).__init__(protocol, bedrock)

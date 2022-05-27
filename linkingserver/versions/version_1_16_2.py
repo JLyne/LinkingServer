@@ -1,18 +1,13 @@
-import os.path
-
-from quarry.types.nbt import TagList, TagCompound, TagRoot, TagString, TagByte, TagFloat, TagInt, NBTFile
+from quarry.data.data_packs import data_packs
+from quarry.types.nbt import TagList, TagCompound, TagRoot, TagString, TagByte, TagFloat, TagInt
 
 from linkingserver.versions import Version_1_16
 from linkingserver.protocol import Protocol
-from linkingserver.versions.version import parent_folder
 
 
 class Version_1_16_2(Version_1_16):
     protocol_version = 751
     chunk_format = '1.16.2'
-    biomes_format = '1.16.2'
-
-    biomes = None
 
     def __init__(self, protocol: Protocol, bedrock: False):
         super(Version_1_16_2, self).__init__(protocol, bedrock)
@@ -35,17 +30,22 @@ class Version_1_16_2(Version_1_16):
             '': TagCompound(self.dimension_settings),
         })
 
-        self.dimension_codec = TagRoot({
-            '': TagCompound({
-                'minecraft:dimension_type': TagCompound({
-                    'type': TagString("minecraft:dimension_type"),
-                    'value': TagList([
-                        TagCompound(self.dimension)
-                    ]),
-                }),
-                'minecraft:worldgen/biome': self.__class__.get_biomes().root_tag.body
-            })
+        self.dimension_codec = data_packs[self.protocol_version]
+
+        self.dimension_codec.body.value['minecraft:dimension_type'] = TagCompound({
+            'type': TagString("minecraft:dimension_type"),
+            'value': TagList([
+                TagCompound(self.dimension)
+            ]),
         })
+
+        # Make sky and fog black
+        for biome in self.dimension_codec.body.value['minecraft:worldgen/biome'].value['value'].value:
+            if biome.value['name'].value == "minecraft:plains":
+                effects = biome.value['element'].value['effects']
+
+                effects.value['sky_color'].value = effects.value['fog_color'].value = \
+                    effects.value['water_color'].value = effects.value['water_fog_color'].value = 0
 
     def get_dimension_settings(self):
         return {
@@ -118,10 +118,3 @@ class Version_1_16_2(Version_1_16):
 
     def get_written_book_id(self):
         return 826
-
-    @classmethod
-    def get_biomes(cls):
-        if cls.biomes is None:
-            cls.biomes = NBTFile(TagRoot({})).load(os.path.join(parent_folder, 'biomes', cls.biomes_format + '.nbt'))
-
-        return cls.biomes
