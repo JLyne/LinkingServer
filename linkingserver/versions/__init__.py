@@ -6,3 +6,4 @@ from .version_1_17 import Version_1_17
 from .version_1_17_1 import Version_1_17_1
 from .version_1_18 import Version_1_18
 from .version_1_18_2 import Version_1_18_2
+from .version_1_19 import Version_1_19

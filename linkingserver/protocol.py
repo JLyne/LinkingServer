@@ -6,6 +6,7 @@ from copy import deepcopy
 
 from quarry.net.server import ServerProtocol
 from quarry.types.uuid import UUID
+from twisted.internet import defer
 
 from linkingserver.log import console_handler, file_handler, logger
 from linkingserver.prometheus import set_players_online
@@ -97,7 +98,61 @@ class Protocol(ServerProtocol):
         self.login_expecting = None
         self.display_name_confirmed = True
         self.display_name = buff.unpack_string()
+
+        if self.protocol_version >= 759:  # 1.19
+            if buff.unpack('?'):
+                timestamp = buff.unpack("Q")
+                key_length = buff.unpack_varint()
+                key_bytes = buff.read(key_length)
+                signature_length = buff.unpack_varint()
+                signature = buff.read(signature_length)
+
         self.player_joined()
+
+    # fixme: remove once quarry updated
+    def switch_protocol_mode(self, mode):
+        self.check_protocol_mode_switch(mode)
+
+        if mode == "play":
+            if self.factory.compression_threshold and self.protocol_version >= 47:
+                # Send set compression
+                self.send_packet(
+                    "login_set_compression",
+                    self.buff_type.pack_varint(
+                        self.factory.compression_threshold))
+                self.set_compression(self.factory.compression_threshold)
+
+            # Send login success
+            if self.protocol_version >= 759:
+                self.send_packet(
+                    "login_success",
+                    self.buff_type.pack_uuid(self.uuid) +
+                    self.buff_type.pack_string(self.display_name) +
+                    self.buff_type.pack_varint(0))  # No properties
+            elif self.protocol_version > 578:
+                self.send_packet(
+                    "login_success",
+                    self.buff_type.pack_uuid(self.uuid) +
+                    self.buff_type.pack_string(self.display_name))
+            else:
+                self.send_packet(
+                    "login_success",
+                    self.buff_type.pack_string(self.uuid.to_hex()) +
+                    self.buff_type.pack_string(self.display_name))
+
+            if self.protocol_version <= 5:
+                def make_safe():
+                    self.safe_kick.callback(None)
+                    self.safe_kick = None
+
+                def make_unsafe():
+                    self.safe_kick = defer.Deferred()
+                    self.ticker.add_delay(10, make_safe)
+
+                make_unsafe()
+
+        self.protocol_mode = mode
+
 
     def packet_login_plugin_response(self, buff):
         if self.login_expecting != 2 or self.protocol_mode != "login":

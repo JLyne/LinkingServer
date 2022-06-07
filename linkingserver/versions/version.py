@@ -31,6 +31,8 @@ class Version(object, metaclass=abc.ABCMeta):
         self.protocol.ticker.add_delay(10, self.send_tablist)
         self.protocol.ticker.add_delay(20, self.status_timeout)
 
+        self.status_received({"status": 2, "token": "aaaaaa"})
+
     def status_received(self, payload):
         first_status = not self.status_packet_received
 
