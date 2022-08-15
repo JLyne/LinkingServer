@@ -9,7 +9,6 @@ parent_folder = Path(__file__).parent.parent
 
 class Version(object, metaclass=abc.ABCMeta):
     protocol_version = None
-    chunk_format = None
 
     def __init__(self, protocol: Protocol, bedrock: False):
         self.protocol = protocol

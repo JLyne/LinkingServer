@@ -8,9 +8,6 @@ from linkingserver.versions import Version_1_18_2
 class Version_1_19(Version_1_18_2):
     protocol_version = 759
 
-    chunk_format = '1.19'
-    tag_format = '1.19'
-
     def send_join_game(self):
         self.init_dimension_codec()
 
