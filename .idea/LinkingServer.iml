@@ -6,6 +6,7 @@
       <excludeFolder url="file://$MODULE_DIR$/linkingserver/build" />
       <excludeFolder url="file://$MODULE_DIR$/linkingserver/dist" />
       <excludeFolder url="file://$MODULE_DIR$/venv-linux" />
+      <excludeFolder url="file://$MODULE_DIR$/LinkingServer" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

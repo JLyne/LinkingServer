@@ -12,7 +12,6 @@ play,downstream,block_action
 play,downstream,block_change
 play,downstream,boss_bar
 play,downstream,server_difficulty
-play,downstream,chat_preview
 play,downstream,clear_titles
 play,downstream,tab_complete
 play,downstream,declare_commands
@@ -23,9 +22,9 @@ play,downstream,set_slot
 play,downstream,set_cooldown
 play,downstream,custom_chat_completions
 play,downstream,plugin_message
-play,downstream,named_sound_effect
 play,downstream,delete_chat_message
 play,downstream,disconnect
+play,downstream,disguised_chat
 play,downstream,entity_status
 play,downstream,explosion
 play,downstream,unload_chunk
@@ -50,11 +49,11 @@ play,downstream,open_sign_editor
 play,downstream,ping
 play,downstream,craft_recipe_response
 play,downstream,player_abilities
-play,downstream,chat_header
 play,downstream,chat_message
 play,downstream,end_combat_event
 play,downstream,enter_combat_event
 play,downstream,death_combat_event
+play,downstream,player_list_remove
 play,downstream,player_list_item
 play,downstream,face_player
 play,downstream,player_position_and_look
@@ -78,7 +77,6 @@ play,downstream,held_item_change
 play,downstream,update_view_position
 play,downstream,update_view_distance
 play,downstream,spawn_position
-play,downstream,set_display_chat_preview
 play,downstream,display_scoreboard
 play,downstream,entity_metadata
 play,downstream,attach_entity
@@ -105,6 +103,7 @@ play,downstream,collect_item
 play,downstream,entity_teleport
 play,downstream,advancements
 play,downstream,entity_properties
+play,downstream,update_enabled_features
 play,downstream,entity_effect
 play,downstream,declare_recipes
 play,downstream,tags
@@ -114,7 +113,6 @@ play,upstream,set_difficulty
 play,upstream,acknowledge_chat
 play,upstream,chat_command
 play,upstream,chat_message
-play,upstream,chat_preview
 play,upstream,client_status
 play,upstream,client_settings
 play,upstream,tab_complete
@@ -141,6 +139,7 @@ play,upstream,player_digging
 play,upstream,entity_action
 play,upstream,steer_vehicle
 play,upstream,pong
+play,upstream,chat_session_update
 play,upstream,set_displayed_recipe
 play,upstream,set_recipe_book_state
 play,upstream,name_item

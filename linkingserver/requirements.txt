@@ -1,4 +1,4 @@
-quarry >= 1.9.3
+quarry >= 1.9.4
 Twisted
 prometheus-client
 PyYAML
