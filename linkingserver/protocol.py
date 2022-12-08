@@ -1,12 +1,18 @@
 import hmac
 import json
 import random
+import time
 
 from copy import deepcopy
 
+from cryptography.exceptions import InvalidSignature
+from cryptography.hazmat.primitives.asymmetric.padding import PKCS1v15
+from cryptography.hazmat.primitives.hashes import SHA256
+from quarry.net import crypto, auth
+from quarry.net.crypto import verify_mojang_v1_signature, verify_mojang_v2_signature
+from quarry.net.protocol import ProtocolError
 from quarry.net.server import ServerProtocol
 from quarry.types.uuid import UUID
-from twisted.internet import defer
 
 from linkingserver.log import console_handler, file_handler, logger
 from linkingserver.prometheus import set_players_online
@@ -95,7 +101,249 @@ class Protocol(ServerProtocol):
             buff.read()
             return
 
-        super().packet_login_start(buff)
+                # FIXME: Remove below when quarry updates
+        self.display_name = buff.unpack_string()
+
+        if self.factory.online_mode:
+            self.login_expecting = 1
+
+            # 1.19 - 1.19.2 may send a Mojang signed public key which needs to be verified
+            if 759 <= self.protocol_version < 761:
+                try:
+                    self.public_key_data = buff.unpack_optional(buff.unpack_player_public_key)
+                except ValueError:
+                    raise ProtocolError("Unable to parse profile public key")
+
+                # Validate public key if present
+                if self.public_key_data is not None:
+                    if self.public_key_data.expiry < time.time():
+                        raise ProtocolError("Expired profile public key")
+
+                    if self.protocol_version >= 760:
+                        uuid = buff.unpack_optional(buff.unpack_uuid)  # 1.19.1+ may also send player UUID
+                        valid = verify_mojang_v2_signature(self.public_key_data, uuid)
+                    else:
+                        valid = verify_mojang_v1_signature(self.public_key_data)
+
+                    if not valid:
+                        raise ProtocolError("Invalid profile public key signature")
+
+                # If secure profiles are required, throw if no public key provided
+                elif self.factory.enforce_secure_profile:
+                    raise ProtocolError("Missing profile public key")
+
+            # send encryption request
+
+            # 1.7.x
+            if self.protocol_version <= 5:
+                pack_array = lambda a: self.buff_type.pack('h', len(a)) + a
+
+            # 1.8.x
+            else:
+                pack_array = lambda a: self.buff_type.pack_varint(
+                    len(a), max_bits=16) + a
+
+            self.send_packet(
+                "login_encryption_request",
+                self.buff_type.pack_string(self.server_id),
+                pack_array(self.factory.public_key),
+                pack_array(self.verify_token))
+
+        else:
+            self.login_expecting = None
+            self.display_name_confirmed = True
+            self.uuid = UUID.from_offline_player(self.display_name)
+
+            self.player_joined()
+
+        buff.discard()
+
+        # FIXME: Uncomment when quarry updates
+        #super().packet_login_start(buff)
+
+    # FIXME: Remove method when quarry updates
+    def packet_login_encryption_response(self, buff):
+        if self.login_expecting != 1:
+            raise ProtocolError("Out-of-order login")
+
+        # 1.7.x
+        if self.protocol_version <= 5:
+            unpack_array = lambda b: b.read(b.unpack('h'))
+        # 1.8.x
+        else:
+            unpack_array = lambda b: b.read(b.unpack_varint(max_bits=16))
+
+        p_shared_secret = unpack_array(buff)
+        salt = None
+
+        # 1.19 - 1.19.2 can now sign the verify token + a salt with the players public key, rather than encrypting the token
+        if 759 <= self.protocol_version < 761:
+            if buff.unpack("?") is False:
+                salt = buff.unpack("Q").to_bytes(8, 'big')
+
+        p_verify_token = unpack_array(buff)
+
+        shared_secret = crypto.decrypt_secret(
+            self.factory.keypair,
+            p_shared_secret)
+
+        if salt is not None:
+            try:
+                self.public_key_data.key.verify(p_verify_token, self.verify_token + salt, PKCS1v15(), SHA256())
+            except InvalidSignature:
+                raise ProtocolError("Verify token incorrect")
+        else:
+            verify_token = crypto.decrypt_secret(
+                self.factory.keypair,
+                p_verify_token)
+
+            if verify_token != self.verify_token:
+                raise ProtocolError("Verify token incorrect")
+
+        self.login_expecting = None
+
+        # enable encryption
+        self.cipher.enable(shared_secret)
+        self.logger.debug("Encryption enabled")
+
+        # make digest
+        digest = crypto.make_digest(
+            self.server_id.encode('ascii'),
+            shared_secret,
+            self.factory.public_key)
+
+        # do auth
+        remote_host = None
+        if self.factory.prevent_proxy_connections:
+            remote_host = self.remote_addr.host
+        deferred = auth.has_joined(
+            self.factory.auth_timeout,
+            digest,
+            self.display_name,
+            remote_host)
+        deferred.addCallbacks(self.auth_ok, self.auth_failed)
+
+        # FIXME: Remove below when quarry updates
+        self.display_name = buff.unpack_string()
+
+        if self.factory.online_mode:
+            self.login_expecting = 1
+
+            # 1.19 - 1.19.2 may send a Mojang signed public key which needs to be verified
+            if 759 <= self.protocol_version < 761:
+                try:
+                    self.public_key_data = buff.unpack_optional(buff.unpack_player_public_key)
+                except ValueError:
+                    raise ProtocolError("Unable to parse profile public key")
+
+                # Validate public key if present
+                if self.public_key_data is not None:
+                    if self.public_key_data.expiry < time.time():
+                        raise ProtocolError("Expired profile public key")
+
+                    if self.protocol_version >= 760:
+                        uuid = buff.unpack_optional(buff.unpack_uuid)  # 1.19.1+ may also send player UUID
+                        valid = verify_mojang_v2_signature(self.public_key_data, uuid)
+                    else:
+                        valid = verify_mojang_v1_signature(self.public_key_data)
+
+                    if not valid:
+                        raise ProtocolError("Invalid profile public key signature")
+
+                # If secure profiles are required, throw if no public key provided
+                elif self.factory.enforce_secure_profile:
+                    raise ProtocolError("Missing profile public key")
+
+            # send encryption request
+
+            # 1.7.x
+            if self.protocol_version <= 5:
+                pack_array = lambda a: self.buff_type.pack('h', len(a)) + a
+
+            # 1.8.x
+            else:
+                pack_array = lambda a: self.buff_type.pack_varint(
+                    len(a), max_bits=16) + a
+
+            self.send_packet(
+                "login_encryption_request",
+                self.buff_type.pack_string(self.server_id),
+                pack_array(self.factory.public_key),
+                pack_array(self.verify_token))
+
+        else:
+            self.login_expecting = None
+            self.display_name_confirmed = True
+            self.uuid = UUID.from_offline_player(self.display_name)
+
+            self.player_joined()
+
+        buff.discard()
+
+        # FIXME: Uncomment when quarry updates
+        #super().packet_login_start(buff)
+
+    # FIXME: Remove method when quarry updates
+    def packet_login_encryption_response(self, buff):
+        if self.login_expecting != 1:
+            raise ProtocolError("Out-of-order login")
+
+        # 1.7.x
+        if self.protocol_version <= 5:
+            unpack_array = lambda b: b.read(b.unpack('h'))
+        # 1.8.x
+        else:
+            unpack_array = lambda b: b.read(b.unpack_varint(max_bits=16))
+
+        p_shared_secret = unpack_array(buff)
+        salt = None
+
+        # 1.19 - 1.19.2 can now sign the verify token + a salt with the players public key, rather than encrypting the token
+        if 759 <= self.protocol_version < 761:
+            if buff.unpack("?") is False:
+                salt = buff.unpack("Q").to_bytes(8, 'big')
+
+        p_verify_token = unpack_array(buff)
+
+        shared_secret = crypto.decrypt_secret(
+            self.factory.keypair,
+            p_shared_secret)
+
+        if salt is not None:
+            try:
+                self.public_key_data.key.verify(p_verify_token, self.verify_token + salt, PKCS1v15(), SHA256())
+            except InvalidSignature:
+                raise ProtocolError("Verify token incorrect")
+        else:
+            verify_token = crypto.decrypt_secret(
+                self.factory.keypair,
+                p_verify_token)
+
+            if verify_token != self.verify_token:
+                raise ProtocolError("Verify token incorrect")
+
+        self.login_expecting = None
+
+        # enable encryption
+        self.cipher.enable(shared_secret)
+        self.logger.debug("Encryption enabled")
+
+        # make digest
+        digest = crypto.make_digest(
+            self.server_id.encode('ascii'),
+            shared_secret,
+            self.factory.public_key)
+
+        # do auth
+        remote_host = None
+        if self.factory.prevent_proxy_connections:
+            remote_host = self.remote_addr.host
+        deferred = auth.has_joined(
+            self.factory.auth_timeout,
+            digest,
+            self.display_name,
+            remote_host)
+        deferred.addCallbacks(self.auth_ok, self.auth_failed)
 
     def packet_login_plugin_response(self, buff):
         if self.login_expecting != 2 or self.protocol_mode != "login":
