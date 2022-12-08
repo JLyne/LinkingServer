@@ -15,14 +15,14 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: Package Application
-      uses: JackMcKew/pyinstaller-action-linux@main
+      uses: action-python/pyinstaller-py3.8@amd64
       with:
         path: linkingserver
-        
+
     - name: copy file
       uses: canastro/copy-file-action@master
       with:
-        source: linkingserver/dist/linux/server
+        source: linkingserver/dist/linux/amd64/server
         target: server
 
     - uses: actions/upload-artifact@v2
@@ -32,7 +32,7 @@ jobs:
         path: |
           server
           config.yml
-        
+
   build-windows:
 
     runs-on: ubuntu-latest
@@ -41,14 +41,14 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: Package Application
-      uses: JackMcKew/pyinstaller-action-windows@main
+      uses: action-python/pyinstaller-py3.8@win64
       with:
         path: linkingserver
-        
+
     - name: copy file
       uses: canastro/copy-file-action@master
       with:
-        source: linkingserver/dist/windows/server.exe
+        source: linkingserver/dist/windows/win64/server.exe
         target: server.exe
 
     - uses: actions/upload-artifact@v2
