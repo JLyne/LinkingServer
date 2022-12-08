@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
     - name: Package Application
       uses: action-python/pyinstaller-py3.8@amd64
@@ -25,7 +25,7 @@ jobs:
         source: linkingserver/dist/linux/amd64/server
         target: server
 
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v3
       with:
         if-no-files-found: error
         name: linkingserver-linux
@@ -38,7 +38,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
     - name: Package Application
       uses: action-python/pyinstaller-py3.8@win64
@@ -51,7 +51,7 @@ jobs:
         source: linkingserver/dist/windows/win64/server.exe
         target: server.exe
 
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v3
       with:
         if-no-files-found: error
         name: linkingserver-windows
