@@ -31,8 +31,6 @@ class Version_1_16_2(Version_1_16):
 
         self.dimension_codec = data_packs[self.protocol_version]
 
-        print(self.dimension_codec)
-
         self.dimension_codec.body.value['minecraft:dimension_type'] = TagCompound({
             'type': TagString("minecraft:dimension_type"),
             'value': TagList([
