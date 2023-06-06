@@ -95,25 +95,5 @@ class Version_1_16_2(Version_1_16):
                                   self.protocol.buff_type.pack("qBB", 0, 1, 1),
                                   self.protocol.buff_type.pack("???", False, False, True))
 
-    def send_world(self):
-        data = [
-            self.protocol.buff_type.pack_varint(0),
-            self.protocol.buff_type.pack_nbt(TagRoot({'': TagCompound({})})),
-            self.protocol.buff_type.pack_varint(1024),
-        ]
-
-        for i in range(0, 1024):
-            data.append(self.protocol.buff_type.pack_varint(127))
-
-        data.append(self.protocol.buff_type.pack_varint(0))
-        data.append(self.protocol.buff_type.pack_varint(0))
-
-        if self.is_bedrock:  # Clear geyser chunk cache from previous server
-            for x in range(-8, 8):
-                for y in range(-8, 8):
-                    self.protocol.send_packet("chunk_data", self.protocol.buff_type.pack("ii?", x, y, True), *data)
-
-            self.protocol.ticker.add_loop(100, self.send_time)
-
     def get_written_book_id(self):
         return 826
