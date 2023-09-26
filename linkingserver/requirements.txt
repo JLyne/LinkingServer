@@ -1,4 +1,4 @@
-quarry @ git+https://github.com/JLyne/quarry@6af5e0d
+quarry @ https://github.com/JLyne/quarry/archive/6af5e0dd82b9b3e5f1b41a3156c4fc6814ea03fd.tar.gz
 Twisted
 prometheus-client
 PyYAML
