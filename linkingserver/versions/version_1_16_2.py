@@ -16,6 +16,11 @@ class Version_1_16_2(Version_1_16):
         self.dimension_codec = None
         self.current_dimension = None
 
+    def get_dimension_codec(self):
+        self.init_dimension_codec()
+
+        return self.dimension_codec
+
     def init_dimension_codec(self):
         self.dimension_settings = self.get_dimension_settings()
 

@@ -146,6 +146,16 @@ class Protocol(ServerProtocol):
         logger.info("Velocity: {} {}".format(self.display_name, self.uuid))
         self.player_joined()
 
+    # 1.20.2+ Send dimension codec in configuration phase
+    def packet_login_acknowledged(self, buff):
+        pack = self.version.get_dimension_codec()
+
+        self.switch_protocol_mode("configuration")
+        self.send_packet("registry_data", self.buff_type.pack_nbt(pack))  # Required to get past Joining World screen
+        self.send_packet("finish_configuration")  # Tell client to leave configuration mode
+
+        buff.discard()
+
     def player_joined(self):
         if self.uuid is None:
             self.uuid = UUID.from_offline_player(self.display_name)

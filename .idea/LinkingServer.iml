@@ -12,6 +12,6 @@
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
   <component name="PackageRequirementsSettings">
-    <option name="requirementsPath" value="C:\Users\jim\PycharmProjects\LinkingServer\linkingserver\requirements.txt" />
+    <option name="requirementsPath" value="$MODULE_DIR$/linkingserver/requirements.txt" />
   </component>
 </module>

@@ -73,6 +73,9 @@ class Version(object, metaclass=abc.ABCMeta):
 
         self.send_book(nbt)
 
+    def get_dimension_codec(self):
+        return None
+
     @abc.abstractmethod
     def send_join_game(self):
         raise NotImplementedError('send_join_game must be defined to use this base class')
