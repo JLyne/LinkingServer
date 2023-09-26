@@ -143,8 +143,11 @@ class Protocol(ServerProtocol):
 
         self.login_expecting = None
         self.display_name_confirmed = True
+        self.send_login_success()
         logger.info("Velocity: {} {}".format(self.display_name, self.uuid))
-        self.player_joined()
+
+        if self.protocol_version < 764:
+            self.player_joined()
 
     # 1.20.2+ Send dimension codec in configuration phase
     def packet_login_acknowledged(self, buff):
