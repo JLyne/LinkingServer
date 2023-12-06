@@ -1,5 +1,4 @@
-import json
-
+from quarry.types.chat import Message
 from quarry.types.nbt import TagInt
 
 from linkingserver.versions import Version_1_18_2
@@ -49,10 +48,8 @@ class Version_1_19(Version_1_18_2):
 
     def send_tablist(self):
         self.protocol.send_packet("player_list_header_footer",
-                                  self.protocol.buff_type.pack_string(json.dumps({
-                                      "text": "\n\ue300\n"
-                                  })),
-                                  self.protocol.buff_type.pack_string(json.dumps({"translate": ""})))
+                                  self.protocol.buff_type.pack_chat(Message("\n\ue300\n")),
+                                  self.protocol.buff_type.pack_chat(Message("")))
 
         self.protocol.send_packet("player_list_item",
                                   self.protocol.buff_type.pack_varint(0),

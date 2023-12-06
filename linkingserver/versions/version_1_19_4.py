@@ -4,7 +4,7 @@ from linkingserver.versions import Version_1_19_3
 class Version_1_19_4(Version_1_19_3):
     protocol_version = 762
 
-    def send_spawn(self, effects=False):
+    def send_spawn(self):
         self.protocol.send_packet("spawn_position", self.protocol.buff_type.pack("iii", 0, 0, 0))
 
         self.protocol.send_packet("player_position_and_look",

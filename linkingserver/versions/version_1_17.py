@@ -1,5 +1,4 @@
-import json
-
+from quarry.types.chat import Message
 from quarry.types.nbt import TagInt, TagRoot, TagCompound
 
 from linkingserver.versions import Version_1_16_2
@@ -28,7 +27,7 @@ class Version_1_17(Version_1_16_2):
 
     def send_title(self):
         self.protocol.send_packet("set_title_text",
-                                  self.protocol.buff_type.pack_string(json.dumps({"text": "Read the Book"})))
+                                  self.protocol.buff_type.pack_chat(Message("Read the Book")))
         self.protocol.send_packet("set_title_time",
                                   self.protocol.buff_type.pack("iii", 10, 72000, 72000))
 
