@@ -1,4 +1,4 @@
-from quarry.types.nbt import TagString, TagList, TagCompound, TagRoot, TagInt
+from quarry.types.nbt import TagRoot
 
 
 class Book:
@@ -14,17 +14,15 @@ class Book:
 
         if bedrock:
             for page in self.pages:
-                pages.append(TagString(page.replace("[token]", token)))
+                pages.append(page.replace("[token]", token))
         else:
             for page in self.pages:
-                pages.append(TagString(page.replace("[token]", token)))
+                pages.append(page.replace("[token]", token))
 
-        return TagRoot({
-            '': TagCompound({
-                'resolved': TagInt(1),
-                'generation': TagInt(2),
-                'author': TagString(self.author),
-                'title': TagString(self.title),
-                'pages': TagList(pages)
-            })
+        return TagRoot.from_obj({
+            'resolved': 1,
+            'generation': 2,
+            'author': self.author,
+            'title': self.title,
+            'pages': pages
         })
