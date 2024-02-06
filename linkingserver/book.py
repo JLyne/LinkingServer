@@ -13,7 +13,7 @@ class Book:
         pages = []
 
         if bedrock:
-            for page in self.pages:
+            for page in self.bedrock_pages:
                 pages.append(page.replace("[token]", token))
         else:
             for page in self.pages:
