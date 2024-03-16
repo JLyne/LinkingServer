@@ -28,8 +28,6 @@ parser.add_argument("-v", "--velocity", default=None, type=str,
 
 args = parser.parse_args()
 
-metrics_port = args.metrics
-
 if args.bungeecord is True and args.velocity is True:
     logger.getLogger('main').error("Cannot use both bungeecord and velocity forwarding at the same time.")
     exit(1)
@@ -47,8 +45,8 @@ server_factory.motd = "Linking Server"
 server_factory.online_mode = False
 server_factory.compression_threshold = 5646848
 
-if metrics_port is not None:
-    init_prometheus(metrics_port)
+if args.metrics is not None:
+    init_prometheus(args.host, args.metrics)
 
 config = load_config()
 Protocol.linking_secret = config['secret']
