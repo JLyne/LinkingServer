@@ -61,3 +61,6 @@ class Version_1_20_5(Version_1_20_3):
                                   self.protocol.buff_type.pack_slot(self.written_book_id, 1, data))
 
         self.send_open_book()
+
+    def get_written_book_id(self):
+        return 1092
