@@ -1,7 +1,10 @@
+from copy import deepcopy
 from typing import Protocol
 
-from quarry.data.data_packs import data_packs
+from quarry.data.data_packs import vanilla_data_packs, pack_formats
 from quarry.types.chat import Message
+from quarry.types.data_pack import DataPack
+from quarry.types.namespaced_key import NamespacedKey
 from quarry.types.nbt import TagRoot, TagCompound, TagByte, TagFloat, TagString, TagInt, TagList
 
 from linkingserver.versions import Version
@@ -9,6 +12,8 @@ from linkingserver.versions import Version
 
 class Version_1_20_3(Version):
     protocol_version = 765
+
+    data_pack: DataPack = None  # Data pack to apply
 
     def __init__(self, protocol: Protocol, bedrock: False):
         super(Version_1_20_3, self).__init__(protocol, bedrock)
@@ -156,51 +161,42 @@ class Version_1_20_3(Version):
         self.protocol.send_packet("held_item_change", self.protocol.buff_type.pack("b", 0))
         self.protocol.send_packet("open_book", self.protocol.buff_type.pack_varint(0))
 
-    def get_dimension_codec(self):
-        self.init_dimension_codec()
+    def get_data_pack(self):
+        if self.data_pack:
+            return self.data_pack
 
-        return self.dimension_codec
+        vanilla_pack = vanilla_data_packs[self.protocol_version]
 
-    def init_dimension_codec(self):
-        self.dimension_settings = self.get_dimension_settings()
+        # Make void sky and fog black
+        plains = deepcopy(vanilla_pack.contents[NamespacedKey.minecraft('worldgen/biome')]
+                        .get(NamespacedKey.minecraft('plains')))
 
-        self.dimension = {
-            'name': TagString("minecraft:overworld"),
-            'id': TagInt(0),
-            'element': TagCompound(self.dimension_settings),
+
+        effects = plains['effects']
+        effects['sky_color'] = effects['fog_color'] = effects['water_color'] = effects['water_fog_color'] = 0
+
+        contents = {
+            NamespacedKey.minecraft('dimension_type'): {
+                NamespacedKey.minecraft('overworld'): self.get_dimension_settings("overworld")
+            },
+            NamespacedKey.minecraft('worldgen/biome'): {
+                NamespacedKey.minecraft('plains'): plains
+            }
         }
 
-        self.current_dimension = TagRoot({
-            '': TagCompound(self.dimension_settings),
-        })
+        self.data_pack = DataPack(NamespacedKey("rtgame", "linkingserver"), "1.0", pack_formats[self.protocol_version], contents)
+        return self.data_pack
 
-        self.dimension_codec = data_packs[self.protocol_version]
-
-        self.dimension_codec.body.value['minecraft:dimension_type'] = TagCompound({
-            'type': TagString("minecraft:dimension_type"),
-            'value': TagList([
-                TagCompound(self.dimension)
-            ]),
-        })
-
-        # Make sky and fog black
-        for biome in self.dimension_codec.body.value['minecraft:worldgen/biome'].value['value'].value:
-            if biome.value['name'].value == "minecraft:plains":
-                effects = biome.value['element'].value['effects']
-
-                effects.value['sky_color'].value = effects.value['fog_color'].value = \
-                    effects.value['water_color'].value = effects.value['water_fog_color'].value = 0
-
-    def get_dimension_settings(self):
+    def get_dimension_settings(self, name: str):
         return {
             'piglin_safe': TagByte(0),
             'natural': TagByte(1),
             'ambient_light': TagFloat(1.0),
-            'infiniburn': TagString("#minecraft:infiniburn_overworld"),
+            'infiniburn': TagString("#minecraft:infiniburn_{}".format(name)),
             'respawn_anchor_works': TagByte(0),
             'has_skylight': TagByte(1),
             'bed_works': TagByte(0),
-            "effects": TagString("minecraft:overworld") if self.is_bedrock else TagString("minecraft:the_nether"),
+            "effects": TagString("minecraft:the_nether"),
             'has_raids': TagByte(0),
             'logical_height': TagInt(256),
             'coordinate_scale': TagFloat(1.0),

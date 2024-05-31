@@ -44,6 +44,8 @@ server_factory.max_players = args.max
 server_factory.motd = "Linking Server"
 server_factory.online_mode = False
 server_factory.compression_threshold = 5646848
+server_factory.velocity_forwarding = args.velocity is not None
+server_factory.velocity_forwarding_secret = args.velocity
 
 if args.metrics is not None:
     init_prometheus(args.host, args.metrics)
@@ -51,8 +53,6 @@ if args.metrics is not None:
 config = load_config()
 Protocol.linking_secret = config['secret']
 Protocol.bungee_forwarding = args.bungeecord
-Protocol.velocity_forwarding = args.velocity is not None
-Protocol.velocity_forwarding_secret = args.velocity
 
 build_versions()
 

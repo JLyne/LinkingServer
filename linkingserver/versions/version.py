@@ -1,5 +1,8 @@
 import abc
 from pathlib import Path
+from typing import Optional
+
+from quarry.types.data_pack import DataPack
 
 from linkingserver.config import books
 from linkingserver.protocol import Protocol
@@ -73,7 +76,7 @@ class Version(object, metaclass=abc.ABCMeta):
 
         self.send_book(nbt)
 
-    def get_dimension_codec(self):
+    def get_data_pack(self) -> Optional[DataPack]:
         return None
 
     @abc.abstractmethod

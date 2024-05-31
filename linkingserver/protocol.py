@@ -1,6 +1,5 @@
 import hmac
 import json
-import random
 
 from copy import deepcopy
 
@@ -16,13 +15,10 @@ versions = {}
 class Protocol(ServerProtocol):
     linking_secret = None
     bungee_forwarding = False
-    velocity_forwarding = False
-    velocity_forwarding_secret = None
 
     def __init__(self, factory, remote_addr):
         super(Protocol, self).__init__(factory, remote_addr)
 
-        self.velocity_message_id = None
         self.is_bedrock = False
         self.version = None
 
@@ -78,84 +74,6 @@ class Protocol(ServerProtocol):
         else:
             self.close("Unsupported Minecraft Version")
 
-    def packet_login_start(self, buff):
-        if self.login_expecting != 0:
-            logger.warning("Unexpected login_start received from {}".format(self.remote_addr))
-            self.close("Out-of-order login")
-            return
-
-        if self.velocity_forwarding is True:
-            self.login_expecting = 2
-            self.velocity_message_id = random.randint(0, 2147483647)
-            self.send_packet("login_plugin_request",
-                             self.buff_type.pack_varint(self.velocity_message_id),
-                             self.buff_type.pack_string("velocity:player_info"),
-                             b'')
-            buff.read()
-            return
-
-        super().packet_login_start(buff)
-
-    def packet_login_plugin_response(self, buff):
-        if self.login_expecting != 2 or self.protocol_mode != "login":
-            logger.warning("Unexpected login_plugin_response received from {}".format(self.remote_addr))
-            self.close("Out-of-order login")
-            return
-
-        message_id = buff.unpack_varint()
-        successful = buff.unpack('b')
-
-        if message_id != self.velocity_message_id:
-            logger.warning("Unexpected login_plugin_response received from {}".format(self.remote_addr))
-            self.close("Unexpected login_plugin_response")
-            return
-
-        if not successful or len(buff) == 0:
-            logger.warning("Empty velocity forwarding response received from {}".format(self.remote_addr))
-            self.close("Empty velocity forwarding response")
-            return
-
-        # Verify HMAC
-        signature = buff.read(32)
-        verify = hmac.new(key=str.encode(self.velocity_forwarding_secret), msg=deepcopy(buff).read(),
-                          digestmod="sha256").digest()
-
-        if verify != signature:
-            logger.warning("Invalid velocity forwarding response received from {}".format(self.remote_addr))
-            self.close("Invalid velocity forwarding response received")
-            buff.discard()
-            return
-
-        version = buff.unpack_varint()
-
-        if version != 1:
-            logger.warning("Unsupported velocity forwarding version received from {}".format(self.remote_addr))
-            self.close("Unsupported velocity forwarding version")
-            buff.discard()
-            return
-
-        buff.unpack_string()  # Ip
-
-        self.uuid = buff.unpack_uuid()
-        self.display_name = buff.unpack_string()
-
-        buff.discard()  # Don't care about the rest
-
-        self.login_expecting = None
-        self.display_name_confirmed = True
-        self.send_login_success()
-        logger.info("Velocity: {} {}".format(self.display_name, self.uuid))
-
-    # 1.20.2+ Send dimension codec in configuration phase
-    def packet_login_acknowledged(self, buff):
-        pack = self.version.get_dimension_codec()
-
-        self.switch_protocol_mode("configuration")
-        self.send_packet("registry_data", self.buff_type.pack_nbt(pack))  # Required to get past Joining World screen
-        self.send_packet("finish_configuration")  # Tell client to leave configuration mode
-
-        buff.discard()
-
     def player_joined(self):
         if self.uuid is None:
             self.uuid = UUID.from_offline_player(self.display_name)
@@ -205,6 +123,10 @@ class Protocol(ServerProtocol):
             return
 
         self.version.status_received(payload)
+
+    def configuration(self):
+        self.data_packs.add_data_pack(self.version.get_data_pack())
+        self.complete_configuration()
 
 
 # Build dictionary of protocol version -> version class
