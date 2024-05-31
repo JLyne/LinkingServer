@@ -4,6 +4,7 @@ from typing import Optional
 
 from quarry.types.data_pack import DataPack
 
+from linkingserver.book import Book
 from linkingserver.config import books
 from linkingserver.protocol import Protocol
 
@@ -68,13 +69,13 @@ class Version(object, metaclass=abc.ABCMeta):
 
     def give_book(self):
         if self.linking_status == 1:
-            nbt = books['unlinked'].nbt(self.linking_token, self.is_bedrock)
+            book = books['unlinked']
         elif self.linking_status == 2:
-            nbt = books['unverified'].nbt(self.linking_token, self.is_bedrock)
+            book = books['unverified']
         else:
             return
 
-        self.send_book(nbt)
+        self.send_book(book)
 
     def get_data_pack(self) -> Optional[DataPack]:
         return None
@@ -124,7 +125,7 @@ class Version(object, metaclass=abc.ABCMeta):
         raise NotImplementedError('get_written_book_id must be defined to use this base class')
 
     @abc.abstractmethod
-    def send_book(self, nbt):
+    def send_book(self, book: Book):
         raise NotImplementedError('send_book must be defined to use this base class')
 
     @abc.abstractmethod

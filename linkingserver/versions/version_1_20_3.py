@@ -1,12 +1,13 @@
 from copy import deepcopy
-from typing import Protocol
 
 from quarry.data.data_packs import vanilla_data_packs, pack_formats
 from quarry.types.chat import Message
 from quarry.types.data_pack import DataPack
 from quarry.types.namespaced_key import NamespacedKey
-from quarry.types.nbt import TagRoot, TagCompound, TagByte, TagFloat, TagString, TagInt, TagList
+from quarry.types.nbt import TagRoot, TagCompound, TagByte, TagFloat, TagString, TagInt
 
+from linkingserver.book import Book
+from linkingserver.protocol import Protocol
 from linkingserver.versions import Version
 
 
@@ -15,7 +16,7 @@ class Version_1_20_3(Version):
 
     data_pack: DataPack = None  # Data pack to apply
 
-    def __init__(self, protocol: Protocol, bedrock: False):
+    def __init__(self, protocol: Protocol, bedrock: bool):
         super(Version_1_20_3, self).__init__(protocol, bedrock)
 
         self.dimension_settings = None
@@ -147,13 +148,13 @@ class Version_1_20_3(Version):
     def get_written_book_id(self):
         return 1086
 
-    def send_book(self, nbt):
+    def send_book(self, book: Book):
+        nbt = book.nbt(self.linking_token, self.is_bedrock)
+
         self.protocol.send_packet("set_slot", self.protocol.buff_type.pack("b", 0),
                                   self.protocol.buff_type.pack_varint(0),
-                                  self.protocol.buff_type.pack("h?", 36, True),
-                                  self.protocol.buff_type.pack_varint(self.written_book_id),
-                                  self.protocol.buff_type.pack("b", 1),
-                                  self.protocol.buff_type.pack_nbt(nbt))
+                                  self.protocol.buff_type.pack("h", 36),
+                                  self.protocol.buff_type.pack_slot(self.written_book_id, 1, nbt))
 
         self.send_open_book()
 
