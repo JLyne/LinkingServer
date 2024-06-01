@@ -44,6 +44,7 @@ server_factory.max_players = args.max
 server_factory.motd = "Linking Server"
 server_factory.online_mode = False
 server_factory.compression_threshold = 5646848
+server_factory.bungee_forwarding = args.bungeecord
 server_factory.velocity_forwarding = args.velocity is not None
 server_factory.velocity_forwarding_secret = args.velocity
 
@@ -52,7 +53,6 @@ if args.metrics is not None:
 
 config = load_config()
 Protocol.linking_secret = config['secret']
-Protocol.bungee_forwarding = args.bungeecord
 
 build_versions()
 

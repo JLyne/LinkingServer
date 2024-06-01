@@ -14,7 +14,6 @@ versions = {}
 
 class Protocol(ServerProtocol):
     linking_secret = None
-    bungee_forwarding = False
 
     def __init__(self, factory, remote_addr):
         super(Protocol, self).__init__(factory, remote_addr)
@@ -32,35 +31,18 @@ class Protocol(ServerProtocol):
         buff2.unpack_varint()
         p_connect_host = buff2.unpack_string()
 
-        if self.bungee_forwarding is True:
-            # Bungeecord ip forwarding, ip/uuid is included in host string separated by \00s
-            split_host = str.split(p_connect_host, "\00")
+        # Floodgate
+        split_host = str.split(p_connect_host, "\00")
 
-            if len(split_host) < 3:
-                logger.warning("Invalid bungeecord forwarding data received from {}".format(self.remote_addr))
-                self.close("Invalid bungeecord forwarding data")
-                return
-
+        if len(split_host) >= 2:
             # TODO: Should probably verify the encrypted data in some way.
             # Not important until something on this server uses uuids
-            if split_host[1] == 'Geyser-Floodgate':
+            if split_host[1].startswith('^Floodgate^'):
                 self.is_bedrock = True
 
-                host = split_host[4]
-                online_uuid = split_host[5]
-            elif split_host[1].startswith('^Floodgate^'):
-                self.is_bedrock = True
-
-                host = split_host[2]
-                online_uuid = split_host[3]
-            else:
-                host = split_host[1]
-                online_uuid = split_host[2]
-
-            self.connect_host = host
-            self.uuid = UUID.from_hex(online_uuid)
-
-            logger.info("Bungeecord: {}".format(self.uuid))
+                if self.factory.bungeecord_forwarding:
+                    self.connect_host = split_host[2]
+                    self.uuid = split_host[3]
 
         version = None
 
