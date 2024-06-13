@@ -33,6 +33,7 @@ class Version(object, metaclass=abc.ABCMeta):
         self.protocol.ticker.add_loop(100, self.send_keep_alive)  # Keep alive packets
         self.protocol.ticker.add_delay(10, self.send_tablist)
         self.protocol.ticker.add_delay(20, self.status_timeout)
+        self.status_received({'token': 'a', 'status': 1})
 
     def status_received(self, payload):
         first_status = not self.status_packet_received
