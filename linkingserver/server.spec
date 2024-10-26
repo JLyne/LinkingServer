@@ -10,8 +10,8 @@ quarry_data = os.path.join(split(quarry.__file__)[0], 'data')
 
 datas = [
 ]
-datas.extend((file, dirname(file).split("site-packages")[1]) for file in glob.iglob(join(quarry_data,"**{}*.csv".format(sep)), recursive=True))
-datas.extend((file, dirname(file).split("site-packages")[1]) for file in glob.iglob(join(quarry_data,"**{}*.nbt".format(sep)), recursive=True))
+datas.extend((file, dirname(file).split("site-packages")[1][1:]) for file in glob.iglob(join(quarry_data,"**{}*.csv".format(sep)), recursive=True))
+datas.extend((file, dirname(file).split("site-packages")[1][1:]) for file in glob.iglob(join(quarry_data,"**{}*.nbt".format(sep)), recursive=True))
 
 a = Analysis(['__main__.py'],
              pathex=['.', '../venv/Lib/site-packages'],
