@@ -27,17 +27,12 @@ jobs:
         source: dist/server
         target: server
 
-    - name: Tar packets
-      run: tar -cvf packets.tar packets
-
     - uses: actions/upload-artifact@v3
       with:
         if-no-files-found: error
         name: linkingserver-linux
         path: |
           server
-          packets.tar
-          maps
           config.yml
         
   build-windows:
@@ -60,16 +55,11 @@ jobs:
       with:
         source: dist/server.exe
         target: server.exe
-
-    - name: Tar packets
-      run: tar -cvf packets.tar packets
-
+        
     - uses: actions/upload-artifact@v3
       with:
         if-no-files-found: error
         name: linkingserver-windows
         path: |
           server.exe
-          packets.tar
-          maps
           config.yml
