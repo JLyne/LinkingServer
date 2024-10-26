@@ -13,9 +13,9 @@ class Version_1_20_5(Version_1_20_3):
 
     def send_join_game(self):
         dimension_registry = self.protocol.data_packs.get_registry(NamespacedKey.minecraft('dimension_type'))
-        dimension = dimension_registry.get(NamespacedKey.minecraft('overworld'))
+        id = list(dimension_registry).index(NamespacedKey.minecraft('overworld'))
 
-        self.protocol.send_packet("join_game",
+        self.protocol.send_packet("login",
                                   self.protocol.buff_type.pack("i?", 0, False),
                                   self.protocol.buff_type.pack_varint(2),
                                   self.protocol.buff_type.pack_string("rtgame:linking"),
@@ -24,7 +24,7 @@ class Version_1_20_5(Version_1_20_3):
                                   self.protocol.buff_type.pack_varint(7),
                                   self.protocol.buff_type.pack_varint(0),
                                   self.protocol.buff_type.pack("???", False, True, False),
-                                  self.protocol.buff_type.pack_varint(dimension['id']),  # Now varint
+                                  self.protocol.buff_type.pack_varint(id),  # Now varint
                                   self.protocol.buff_type.pack_string("rtgame:linking"),
                                   self.protocol.buff_type.pack("qBb??", 0, 1, 1, False, False),
                                   self.protocol.buff_type.pack("?", False),
@@ -33,10 +33,10 @@ class Version_1_20_5(Version_1_20_3):
 
     def send_respawn(self):
         dimension_registry = self.protocol.data_packs.get_registry(NamespacedKey.minecraft('dimension_type'))
-        dimension = dimension_registry.get(NamespacedKey.minecraft('overworld'))
+        id = list(dimension_registry).index(NamespacedKey.minecraft('overworld'))
 
         self.protocol.send_packet("respawn",
-                                  self.protocol.buff_type.pack_varint(dimension['id']), # Now varint
+                                  self.protocol.buff_type.pack_varint(id), # Now varint
                                   self.protocol.buff_type.pack_string("rtgame:reset"),
                                   self.protocol.buff_type.pack("qBB", 0, 1, 1),
                                   self.protocol.buff_type.pack("???", False, False, False),
@@ -44,7 +44,7 @@ class Version_1_20_5(Version_1_20_3):
                                   self.protocol.buff_type.pack("b", 0))
 
         self.protocol.send_packet("respawn",
-                                  self.protocol.buff_type.pack_varint(dimension['id']), # Now varint
+                                  self.protocol.buff_type.pack_varint(id), # Now varint
                                   self.protocol.buff_type.pack_string("rtgame:linking"),
                                   self.protocol.buff_type.pack("qBB", 0, 1, 1),
                                   self.protocol.buff_type.pack("???", False, False, False),
@@ -54,7 +54,7 @@ class Version_1_20_5(Version_1_20_3):
     def send_book(self, book: Book):
         data = book.structured_data(self.linking_token, self.is_bedrock)
 
-        self.protocol.send_packet("set_slot",
+        self.protocol.send_packet("container_set_slot",
                                   self.protocol.buff_type.pack("b", 0),
                                   self.protocol.buff_type.pack_varint(0),
                                   self.protocol.buff_type.pack("h", 36),

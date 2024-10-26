@@ -43,7 +43,7 @@ class Version_1_20_3(Version):
         }
 
     def send_join_game(self):
-        self.protocol.send_packet("join_game",
+        self.protocol.send_packet("login",
                                   self.protocol.buff_type.pack("i?", 0, False),
                                   self.protocol.buff_type.pack_varint(2),
                                   self.protocol.buff_type.pack_string("rtgame:linking"),
@@ -60,13 +60,13 @@ class Version_1_20_3(Version):
                                   self.protocol.buff_type.pack_varint(0))
 
     def send_spawn(self):
-        self.protocol.send_packet("spawn_position", self.protocol.buff_type.pack("iii", 0, 0, 0))
+        self.protocol.send_packet("set_default_spawn_position", self.protocol.buff_type.pack("iii", 0, 0, 0))
 
-        self.protocol.send_packet("player_position_and_look",
+        self.protocol.send_packet("player_position",
                                   self.protocol.buff_type.pack("dddff?", 0, 2048, 0, 0.0, 0.0, 0b00000),
                                   self.protocol.buff_type.pack_varint(0))  # Remove dismount vehicle
 
-        self.protocol.send_packet("change_game_state", self.protocol.buff_type.pack("Bf", 13, 0.0))  # Hide loading terrain screen
+        self.protocol.send_packet("game_event", self.protocol.buff_type.pack("Bf", 13, 0.0))  # Hide loading terrain screen
 
     def send_respawn(self):
         self.protocol.send_packet("respawn",
@@ -98,29 +98,29 @@ class Version_1_20_3(Version):
 
         for x in range(-8, 8):
             for y in range(-8, 8):
-                self.protocol.send_packet("chunk_data", self.protocol.buff_type.pack("ii", x, y), *data)
+                self.protocol.send_packet("level_chunk_with_light", self.protocol.buff_type.pack("ii", x, y), *data)
 
     def send_keep_alive(self):
         self.protocol.send_packet("keep_alive", self.protocol.buff_type.pack("Q", 0))
 
     def send_time(self):
-        self.protocol.send_packet("time_update", self.protocol.buff_type.pack("ll", 0, -18000))
+        self.protocol.send_packet("set_time", self.protocol.buff_type.pack("ll", 0, -18000))
 
     def send_title(self):
         self.protocol.send_packet("set_title_text",
                                   self.protocol.buff_type.pack_chat(Message("Read the Book")))
-        self.protocol.send_packet("set_title_time",
+        self.protocol.send_packet("set_titles_animation",
                                   self.protocol.buff_type.pack("iii", 10, 72000, 72000))
 
     def send_commands(self):
-        self.protocol.send_packet('declare_commands', self.protocol.buff_type.pack_commands(self.commands))
+        self.protocol.send_packet('commands', self.protocol.buff_type.pack_commands(self.commands))
 
     def send_tablist(self):
-        self.protocol.send_packet("player_list_header_footer",
+        self.protocol.send_packet("tab_list",
                                   self.protocol.buff_type.pack_chat(Message("\n\ue300\n")),
                                   self.protocol.buff_type.pack_chat(Message("")))
 
-        self.protocol.send_packet("player_list_item",
+        self.protocol.send_packet("player_info_update",
                                   self.protocol.buff_type.pack('B', 63),
                                   self.protocol.buff_type.pack_varint(1),
                                   self.protocol.buff_type.pack_uuid(self.protocol.uuid),
@@ -143,7 +143,7 @@ class Version_1_20_3(Version):
             data.append(self.protocol.buff_type.pack('?', False))
 
         data.append(self.protocol.buff_type.pack('?', False))
-        self.protocol.send_packet('window_items', *data)
+        self.protocol.send_packet('container_set_content', *data)
 
     def get_written_book_id(self):
         return 1086
@@ -151,7 +151,7 @@ class Version_1_20_3(Version):
     def send_book(self, book: Book):
         nbt = book.nbt(self.linking_token, self.is_bedrock)
 
-        self.protocol.send_packet("set_slot", self.protocol.buff_type.pack("b", 0),
+        self.protocol.send_packet("container_set_slot", self.protocol.buff_type.pack("b", 0),
                                   self.protocol.buff_type.pack_varint(0),
                                   self.protocol.buff_type.pack("h", 36),
                                   self.protocol.buff_type.pack_slot(self.written_book_id, 1, nbt))
@@ -159,7 +159,7 @@ class Version_1_20_3(Version):
         self.send_open_book()
 
     def send_open_book(self):
-        self.protocol.send_packet("held_item_change", self.protocol.buff_type.pack("b", 0))
+        self.protocol.send_packet("set_carried_item", self.protocol.buff_type.pack("b", 0))
         self.protocol.send_packet("open_book", self.protocol.buff_type.pack_varint(0))
 
     def get_data_pack(self):

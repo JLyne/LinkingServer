@@ -24,9 +24,9 @@ class Protocol(ServerProtocol):
         self.logger.addHandler(console_handler)
         self.logger.addHandler(file_handler)
 
-    def packet_handshake(self, buff):
+    def packet_intention(self, buff):
         buff2 = deepcopy(buff)
-        super().packet_handshake(buff)
+        super().packet_intention(buff)
 
         buff2.unpack_varint()
         p_connect_host = buff2.unpack_string()
@@ -71,7 +71,7 @@ class Protocol(ServerProtocol):
 
         set_players_online(len(self.factory.players))
 
-    def packet_animation(self, buff):
+    def packet_swing(self, buff):
         self.version.send_open_book()
         buff.discard()
 
@@ -79,13 +79,13 @@ class Protocol(ServerProtocol):
         self.version.send_open_book()
         buff.discard()
 
-    def packet_held_item_change(self, buff):
+    def packet_set_carried_item(self, buff):
         buff.discard()
 
         if self.version.is_bedrock:
             self.version.give_book()
 
-    def packet_plugin_message(self, buff):
+    def packet_custom_payload(self, buff):
         channel = buff.unpack_string()
         data = buff.read()
 
