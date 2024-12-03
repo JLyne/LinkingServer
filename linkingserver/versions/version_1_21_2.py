@@ -44,3 +44,6 @@ class Version_1_21_2(Version_1_21):
     def send_open_book(self):
         self.protocol.send_packet("set_held_slot", self.protocol.buff_type.pack("b", 0)) # Renamed packet
         self.protocol.send_packet("open_book", self.protocol.buff_type.pack_varint(0))
+
+    def get_written_book_id(self):
+        return 1133
