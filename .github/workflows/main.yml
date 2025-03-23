@@ -9,7 +9,7 @@ on:
 jobs:
   build-linux:
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     steps:
     - uses: actions/checkout@v4
@@ -17,7 +17,7 @@ jobs:
     - name: Package Application
       uses: sayyid5416/pyinstaller@v1
       with:
-        python_ver: '3.12'
+        python_ver: '3.13'
         spec: 'linkingserver/server.spec'
         requirements: 'linkingserver/requirements.txt'
         
@@ -45,8 +45,7 @@ jobs:
     - name: Package Application
       uses: sayyid5416/pyinstaller@v1
       with:
-        path: linkingserver
-        python_ver: '3.12'
+        python_ver: '3.13'
         spec: 'linkingserver/server.spec'
         requirements: 'linkingserver/requirements.txt'
         
