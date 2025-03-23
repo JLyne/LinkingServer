@@ -14,8 +14,7 @@ datas.extend((file, dirname(file).split("site-packages")[1][1:]) for file in glo
 datas.extend((file, dirname(file).split("site-packages")[1][1:]) for file in glob.iglob(join(quarry_data,"**{}*.nbt".format(sep)), recursive=True))
 
 a = Analysis(['__main__.py'],
-             pathex=['.', '../venv/Lib/site-packages'],
-             #pathex=['.', '../venv-linux/Lib/python3.8/site-packages'],
+             pathex=['.'],
              binaries=[],
              datas=datas,
              hiddenimports=[],
