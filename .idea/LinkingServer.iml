@@ -8,7 +8,7 @@
       <excludeFolder url="file://$MODULE_DIR$/venv-linux" />
       <excludeFolder url="file://$MODULE_DIR$/LinkingServer" />
     </content>
-    <orderEntry type="jdk" jdkName="Python 3.12 (LinkingServer)" jdkType="Python SDK" />
+    <orderEntry type="jdk" jdkName="Python 3.13 (LinkingServer)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
   <component name="PackageRequirementsSettings">
