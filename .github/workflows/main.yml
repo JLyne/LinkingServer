@@ -12,12 +12,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Package Application
       uses: sayyid5416/pyinstaller@v1
       with:
-        python_ver: '3.8'
+        python_ver: '3.12'
         spec: 'linkingserver/server.spec'
         requirements: 'linkingserver/requirements.txt'
         
@@ -27,7 +27,7 @@ jobs:
         source: dist/server
         target: server
 
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       with:
         if-no-files-found: error
         name: linkingserver-linux
@@ -40,13 +40,13 @@ jobs:
     runs-on: windows-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Package Application
       uses: sayyid5416/pyinstaller@v1
       with:
         path: linkingserver
-        python_ver: '3.8'
+        python_ver: '3.12'
         spec: 'linkingserver/server.spec'
         requirements: 'linkingserver/requirements.txt'
         
@@ -56,7 +56,7 @@ jobs:
         source: dist/server.exe
         target: server.exe
         
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       with:
         if-no-files-found: error
         name: linkingserver-windows
