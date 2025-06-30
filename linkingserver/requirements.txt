@@ -1,3 +1,3 @@
-quarry @ https://github.com/JLyne/quarry/archive/b47a00a8a96d1e2c952e26162c4a7d2d5ad00c22.tar.gz
+quarry @ https://github.com/JLyne/quarry/archive/8f4a389711da06187c175b793225129db0d382bc.tar.gz
 prometheus-client
 PyYAML
