@@ -32,7 +32,8 @@ class Version_1_21_2(Version_1_21):
                                   self.protocol.buff_type.pack("?", False))
 
     def send_spawn(self):
-        self.protocol.send_packet("set_default_spawn_position", self.protocol.buff_type.pack("iii", 0, 0, 0))
+        self.protocol.send_packet("set_default_spawn_position", self.protocol.buff_type.pack_position(0, 0, 0)
+                             + self.protocol.buff_type.pack('f', 0))
 
         self.protocol.send_packet("player_position",
                                   self.protocol.buff_type.pack_varint(0), # Move to front
