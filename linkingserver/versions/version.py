@@ -57,15 +57,7 @@ class Version(object, metaclass=abc.ABCMeta):
 
     def send_world(self):
         self.send_spawn()
-
-        # Clear geyser chunk cache from previous server
-        if self.is_bedrock:
-            self.send_reset_world()
-
-        if self.is_bedrock:  # Current versions of geyser seem to ignore the time sometimes. Send repeatedly for now.
-            self.protocol.ticker.add_loop(100, self.send_time)
-        else:
-            self.send_time()
+        self.send_time()
 
     def give_book(self):
         if self.linking_status == 1:
