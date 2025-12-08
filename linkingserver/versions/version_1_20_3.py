@@ -172,13 +172,12 @@ class Version_1_20_3(Version):
         plains = deepcopy(vanilla_pack.contents[NamespacedKey.minecraft('worldgen/biome')]
                         .get(NamespacedKey.minecraft('plains')))
 
-
         effects = plains['effects']
         effects['sky_color'] = effects['fog_color'] = effects['water_color'] = effects['water_fog_color'] = 0
 
         contents = {
             NamespacedKey.minecraft('dimension_type'): {
-                NamespacedKey.minecraft('overworld'): self.get_dimension_settings("overworld")
+                NamespacedKey.minecraft('overworld'): self.get_dimension_settings()
             },
             NamespacedKey.minecraft('worldgen/biome'): {
                 NamespacedKey.minecraft('plains'): plains
@@ -188,12 +187,12 @@ class Version_1_20_3(Version):
         self.data_pack = DataPack(NamespacedKey("rtgame", "linkingserver"), "1.0", pack_formats[self.protocol_version], contents)
         return self.data_pack
 
-    def get_dimension_settings(self, name: str):
+    def get_dimension_settings(self):
         return {
             'piglin_safe': TagByte(0),
             'natural': TagByte(1),
             'ambient_light': TagFloat(1.0),
-            'infiniburn': TagString("#minecraft:infiniburn_{}".format(name)),
+            'infiniburn': TagString("#minecraft:infiniburn_overworld"),
             'respawn_anchor_works': TagByte(0),
             'has_skylight': TagByte(1),
             'bed_works': TagByte(0),
