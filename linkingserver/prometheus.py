@@ -3,7 +3,7 @@ import logging
 from prometheus_client import start_http_server, Gauge
 
 # Create a metric to track time spent and requests made.
-players_online = Gauge('mc_players_online_total', 'Number of players connected to the server')
+players_online = Gauge('mc_players_online', 'Number of players connected to the server')
 
 
 def init_prometheus(host, port):
