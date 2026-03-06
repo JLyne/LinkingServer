@@ -46,10 +46,9 @@ class Version(object, metaclass=abc.ABCMeta):
                 self.send_respawn()
 
             self.send_world()
-            self.give_book()
-            self.protocol.ticker.add_delay(40, self.send_title)
-        else:
-            self.give_book()
+
+        self.protocol.ticker.add_delay(40, self.send_title)
+        self.give_book()
 
     def status_timeout(self):
         if self.status_packet_received is False:
