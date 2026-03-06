@@ -121,16 +121,12 @@ class Version_1_20_3(Version):
                                   self.protocol.buff_type.pack_chat(Message("")))
 
         self.protocol.send_packet("player_info_update",
-                                  self.protocol.buff_type.pack('B', 63),
+                                  self.protocol.buff_type.pack('B', 29),
                                   self.protocol.buff_type.pack_varint(1),
-                                  self.protocol.buff_type.pack_uuid(self.protocol.uuid),
-                                  self.protocol.buff_type.pack_string(self.protocol.display_name),
-                                  self.protocol.buff_type.pack_varint(0),
-                                  self.protocol.buff_type.pack("?", False),  # False for no chat session info
-                                  self.protocol.buff_type.pack_varint(1),
+                                  self.protocol.buff_type.pack_game_profile(self.protocol.profile),
+                                  self.protocol.buff_type.pack_varint(2),
                                   self.protocol.buff_type.pack("?", True),  # Show in tab list
-                                  self.protocol.buff_type.pack_varint(1),
-                                  self.protocol.buff_type.pack("?", False))
+                                  self.protocol.buff_type.pack_varint(1))
 
     def send_inventory(self):
         data = [

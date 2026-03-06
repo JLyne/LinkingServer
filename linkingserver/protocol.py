@@ -57,9 +57,6 @@ class Protocol(ServerProtocol):
             self.close("Unsupported Minecraft Version")
 
     def player_joined(self):
-        if self.uuid is None:
-            self.uuid = UUID.from_offline_player(self.display_name)
-
         super().player_joined()
 
         set_players_online(len(self.factory.players))
