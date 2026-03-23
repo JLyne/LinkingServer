@@ -121,12 +121,13 @@ class Version_1_20_3(Version):
                                   self.protocol.buff_type.pack_chat(Message("")))
 
         self.protocol.send_packet("player_info_update",
-                                  self.protocol.buff_type.pack('B', 29),
+                                  self.protocol.buff_type.pack('B', 157),
                                   self.protocol.buff_type.pack_varint(1),
                                   self.protocol.buff_type.pack_game_profile(self.protocol.profile),
-                                  self.protocol.buff_type.pack_varint(2),
+                                  self.protocol.buff_type.pack_varint(2), # Gamemode
                                   self.protocol.buff_type.pack("?", True),  # Show in tab list
-                                  self.protocol.buff_type.pack_varint(1))
+                                  self.protocol.buff_type.pack_varint(1), # Ping
+                                  self.protocol.buff_type.pack("?", True))  # Show hat skin layer
 
     def send_inventory(self):
         data = [
