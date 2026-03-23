@@ -1,6 +1,7 @@
 # -*- mode: python ; coding: utf-8 -*-
 from os.path import join, dirname, abspath, split
 from os import sep
+from PyInstaller.utils.hooks import collect_submodules
 import glob
 import quarry
 
@@ -17,7 +18,7 @@ a = Analysis(['__main__.py'],
              pathex=['.'],
              binaries=[],
              datas=datas,
-             hiddenimports=[],
+             hiddenimports=collect_submodules('bitstring'),
              hookspath=[],
              runtime_hooks=[],
              excludes=[],
