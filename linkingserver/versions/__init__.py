@@ -10,3 +10,4 @@ from .version_1_21_7 import Version_1_21_7
 from .version_1_21_9 import Version_1_21_9
 from .version_1_21_11 import Version_1_21_11
 from .version_26_1 import Version_26_1
+from .version_26_2 import Version_26_2
