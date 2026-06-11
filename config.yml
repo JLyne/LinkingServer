@@ -1,6 +1,6 @@
 # Shared secret for linking HMAC
 # Must match linking-secret in ProxyDiscord's config.yml
-secret: ''
+secret: ')2z#*MR^BrGVygg7'
 
 books:
   # This book will be shown to users who have not linked their Discord account
@@ -20,7 +20,7 @@ books:
     # All the usual chat features like colours, click and hover events etc are supported here
     pages: [
       '["",{"text":"This is the first page of the linking book.","bold":true,"underlined":true},{"text":"\n\nThis is a good place to tell the user that they need to link their Discord account in order to play, and that they should read the rest of the book for instructions on how to do that."}]',
-      '["",{"text":"You might want to have some pages that explain the steps the user needs to take, such as joining your discord server.\n\nClick events for "},{"text":"[opening URLs]","color":"blue","clickEvent":{"action":"open_url","value":"https://www.google.com/"},"hoverEvent":{"action":"show_text","contents":"Clicking here will open a URL in your browser"}},{"text":" or "},{"text":"[copying to the clipboard]","color":"blue","clickEvent":{"action":"copy_to_clipboard","value":"This is some text that has been copied to the clipboard"},"hoverEvent":{"action":"show_text","contents":"Clicking here will copy some text to your clipboard"}},{"text":" are supported here which are helpful for links."}]',
+      '["",{"text":"You might want to have some pages that explain the steps the user needs to take, such as joining your discord server.\n\nClick events for "},{"text":"[opening URLs]","color":"blue","clickEvent":{"action":"open_url","value":"https://www.google.com/"},"click_event":{"action":"open_url","url":"https://www.google.com/"},"hoverEvent":{"action":"show_text","contents":"Clicking here will open a URL in your browser"},"hover_event":{"action":"show_text","value":"Clicking here will open a URL in your browser"}},{"text":" or "},{"text":"[copying to the clipboard]","color":"blue","clickEvent":{"action":"copy_to_clipboard","value":"This is some text that has been copied to the clipboard"},"hoverEvent":{"action":"show_text","contents":"Clicking here will copy some text to your clipboard"}},{"text":" are supported here which are helpful for links."}]',
       '["",{"text":"You\\''ll need to include the user\\''s linking token in the book, so the user can link their account.\n\nAny occurances of "},{"text":"[","bold":true,"color":"red"},{"text":"token","color":"red"},{"text":"]","bold":true,"color":"red"},{"text":" in the book text will be replaced with the user''s linking token. See the next page for an example."}]',
       '["",{"text":"In order to link your accounts, please send the below command in the "},{"text":"#minecraft_linking","underlined":true,"color":"blue"},{"text":" Discord channel.\n\n"},{"text":"!link [token]","color":"red","clickEvent":{"action":"copy_to_clipboard","value":"!link [token]"},"hoverEvent":{"action":"show_text","contents":"Click to copy the !link command to your clipboard"}},{"text":" "},{"text":"[Copy]","bold":true,"color":"blue","clickEvent":{"action":"copy_to_clipboard","value":"!link [token]"},"hoverEvent":{"action":"show_text","contents":"Click to copy the !link text to your clipboard"}},{"text":"\n\nYou will then be able to play on the server, if  you have one of the required Discord roles."}]']
 

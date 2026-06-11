@@ -5,7 +5,7 @@ from linkingserver.versions import Version_26_1
 
 
 class Version_26_2(Version_26_1):
-    protocol_version = 1073742142
+    protocol_version = 1073742145
 
     def __init__(self, protocol: Protocol, bedrock: bool):
         super(Version_26_1, self).__init__(protocol, bedrock)
